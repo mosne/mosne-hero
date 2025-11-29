@@ -18,9 +18,6 @@
 		width: 100%;
 		height: 100%;
 		z-index: 1;
-		background-size: cover;
-		background-repeat: no-repeat;
-		background-position: center center;
 	}
 
 	.mosne-hero-background-image {
@@ -29,9 +26,8 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background-size: cover;
-		background-repeat: no-repeat;
-		background-position: center center;
+		object-fit: cover;
+		object-position: center center;
 	}
 
 	.mosne-hero-background-desktop {

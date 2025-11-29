@@ -31,6 +31,7 @@ import {
 	SelectControl,
 	ToolbarGroup,
 	ToolbarButton,
+	FocalPointPicker,
 } from '@wordpress/components';
 import { isBlobURL } from '@wordpress/blob';
 import { useSelect } from '@wordpress/data';
@@ -63,6 +64,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		overlayOpacity,
 		minHeight,
 		contentPosition,
+		desktopFocalPoint,
+		mobileFocalPoint,
 	} = attributes;
 
 	const blockProps = useBlockProps( {
@@ -112,6 +115,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setAttributes( {
 			desktopImageId: image.id,
 			desktopImageUrl: image.url || image.source_url,
+			desktopFocalPoint: desktopFocalPoint || { x: 0.5, y: 0.5 },
 		} );
 	};
 
@@ -119,6 +123,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setAttributes( {
 			mobileImageId: image.id,
 			mobileImageUrl: image.url || image.source_url,
+			mobileFocalPoint: mobileFocalPoint || { x: 0.5, y: 0.5 },
 		} );
 	};
 
@@ -141,9 +146,29 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		opacity: overlayOpacity,
 	};
 
-	const backgroundStyle = {
-		backgroundPosition: contentPosition,
+	// Calculate object-position from focal point
+	const getObjectPosition = ( focalPoint ) => {
+		if ( ! focalPoint || typeof focalPoint.x === 'undefined' || typeof focalPoint.y === 'undefined' ) {
+			return '50% 50%';
+		}
+		return `${ focalPoint.x * 100 }% ${ focalPoint.y * 100 }%`;
 	};
+
+	// Ensure focal points have defaults
+	const desktopFocalPointValue = desktopFocalPoint || { x: 0.5, y: 0.5 };
+	const mobileFocalPointValue = mobileFocalPoint || { x: 0.5, y: 0.5 };
+
+	const desktopImageStyle = desktopImageUrl
+		? {
+				objectPosition: getObjectPosition( desktopFocalPointValue ),
+		  }
+		: {};
+
+	const mobileImageStyle = mobileImageUrl
+		? {
+				objectPosition: getObjectPosition( mobileFocalPointValue ),
+		  }
+		: {};
 
 	return (
 		<>
@@ -177,15 +202,19 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 								<div>
 									{ desktopImageUrl && ! isBlobURL( desktopImageUrl ) && (
 										<>
-											<img
-												src={ desktopImageUrl }
-												alt={ __( 'Desktop background', 'mosne-hero' ) }
-												style={ { width: '100%', height: 'auto', marginBottom: '10px' } }
+											<FocalPointPicker
+												label={ __( 'Focal Point Picker', 'mosne-hero' ) }
+												url={ desktopImageUrl }
+												value={ desktopFocalPointValue }
+												onChange={ ( value ) =>
+													setAttributes( { desktopFocalPoint: value } )
+												}
 											/>
 											<Button
 												onClick={ onRemoveDesktopImage }
 												variant="secondary"
 												isDestructive
+												style={ { marginTop: '10px', width: '100%' } }
 											>
 												{ __( 'Remove desktop image', 'mosne-hero' ) }
 											</Button>
@@ -214,15 +243,19 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 								<div>
 									{ mobileImageUrl && ! isBlobURL( mobileImageUrl ) && (
 										<>
-											<img
-												src={ mobileImageUrl }
-												alt={ __( 'Mobile background', 'mosne-hero' ) }
-												style={ { width: '100%', height: 'auto', marginBottom: '10px' } }
+											<FocalPointPicker
+												label={ __( 'Focal Point Picker', 'mosne-hero' ) }
+												url={ mobileImageUrl }
+												value={ mobileFocalPointValue }
+												onChange={ ( value ) =>
+													setAttributes( { mobileFocalPoint: value } )
+												}
 											/>
 											<Button
 												onClick={ onRemoveMobileImage }
 												variant="secondary"
 												isDestructive
+												style={ { marginTop: '10px', width: '100%' } }
 											>
 												{ __( 'Remove mobile image', 'mosne-hero' ) }
 											</Button>
@@ -288,21 +321,21 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			</InspectorControls>
 
 			<div { ...blockProps }>
-				<div className="mosne-hero-background" style={ backgroundStyle }>
+				<div className="mosne-hero-background">
 					{ desktopImageUrl && (
-						<div
+						<img
 							className="mosne-hero-background-image mosne-hero-background-desktop"
-							style={ {
-								backgroundImage: `url(${ desktopImageUrl })`,
-							} }
+							src={ desktopImageUrl }
+							alt=""
+							style={ desktopImageStyle }
 						/>
 					) }
 					{ mobileImageUrl && (
-						<div
+						<img
 							className="mosne-hero-background-image mosne-hero-background-mobile"
-							style={ {
-								backgroundImage: `url(${ mobileImageUrl })`,
-							} }
+							src={ mobileImageUrl }
+							alt=""
+							style={ mobileImageStyle }
 						/>
 					) }
 					<div className="mosne-hero-overlay" style={ overlayStyle } />

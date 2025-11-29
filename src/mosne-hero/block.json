@@ -40,6 +40,28 @@
 		"contentPosition": {
 			"type": "string",
 			"default": "center center"
+		},
+		"desktopFocalPoint": {
+			"type": "object",
+			"default": {
+				"x": 0.5,
+				"y": 0.5
+			}
+		},
+		"mobileFocalPoint": {
+			"type": "object",
+			"default": {
+				"x": 0.5,
+				"y": 0.5
+			}
+		},
+		"desktopImageSize": {
+			"type": "string",
+			"default": "full"
+		},
+		"mobileImageSize": {
+			"type": "string",
+			"default": "full"
 		}
 	},
 	"supports": {

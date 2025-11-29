@@ -25,7 +25,8 @@ export default function save( { attributes } ) {
 		overlayColor,
 		overlayOpacity,
 		minHeight,
-		contentPosition,
+		desktopFocalPoint,
+		mobileFocalPoint,
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
@@ -40,28 +41,48 @@ export default function save( { attributes } ) {
 		opacity: overlayOpacity,
 	};
 
-	const backgroundStyle = {
-		backgroundPosition: contentPosition,
+	// Calculate object-position from focal point
+	const getObjectPosition = ( focalPoint ) => {
+		if ( ! focalPoint || typeof focalPoint.x === 'undefined' || typeof focalPoint.y === 'undefined' ) {
+			return '50% 50%';
+		}
+		return `${ focalPoint.x * 100 }% ${ focalPoint.y * 100 }%`;
 	};
+
+	// Ensure focal points have defaults
+	const desktopFocalPointValue = desktopFocalPoint || { x: 0.5, y: 0.5 };
+	const mobileFocalPointValue = mobileFocalPoint || { x: 0.5, y: 0.5 };
+
+	const desktopImageStyle = desktopImageUrl
+		? {
+				objectPosition: getObjectPosition( desktopFocalPointValue ),
+		  }
+		: {};
+
+	const mobileImageStyle = mobileImageUrl
+		? {
+				objectPosition: getObjectPosition( mobileFocalPointValue ),
+		  }
+		: {};
 
 	return (
 		<div { ...blockProps }>
-			<div className="mosne-hero-background" style={ backgroundStyle }>
+			<div className="mosne-hero-background">
 				{ desktopImageUrl && (
-					<div
+					<img
 						className="mosne-hero-background-image mosne-hero-background-desktop"
-						style={ {
-							backgroundImage: `url(${ desktopImageUrl })`,
-						} }
+						src={ desktopImageUrl }
+						alt=""
+						style={ desktopImageStyle }
 						data-image-id={ desktopImageId }
 					/>
 				) }
 				{ mobileImageUrl && (
-					<div
+					<img
 						className="mosne-hero-background-image mosne-hero-background-mobile"
-						style={ {
-							backgroundImage: `url(${ mobileImageUrl })`,
-						} }
+						src={ mobileImageUrl }
+						alt=""
+						style={ mobileImageStyle }
 						data-image-id={ mobileImageId }
 					/>
 				) }
