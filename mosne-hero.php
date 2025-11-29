@@ -199,43 +199,38 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 
 	// Get mobile image attributes
 	$mobile_image_id   = $attributes['mobileImageId'] ?? 0;
-	$mobile_image_url  = $attributes['mobileImageUrl'] ?? '';
 	$mobile_focal_point = $attributes['mobileFocalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
-	$mobile_image_size  = $attributes['mobileImageSize'] ?? 'full';
-
-	// Get desktop image attributes for comparison
-	$desktop_image_id = $attributes['id'] ?? 0;
+	$mobile_image_size  = $attributes['mobileImageSize'] ?? 'large';
 
 	// If no mobile image, return as-is
-	if ( ! $mobile_image_id && ! $mobile_image_url ) {
+	if ( ! $mobile_image_id ) {
 		return $block_content;
 	}
 
-	// Get image URL if we have ID but no URL
-	if ( $mobile_image_id && ! $mobile_image_url ) {
-		$image = wp_get_attachment_image_src( $mobile_image_id, $mobile_image_size );
-		if ( $image && isset( $image[0] ) ) {
-			$mobile_image_url = $image[0];
+	// If we have an ID, use wp_get_attachment_image to get the full WordPress image markup
+	if ( $mobile_image_id ) {
+		// Calculate object-position from focal point
+		$object_position = '50% 50%';
+		if ( isset( $mobile_focal_point['x'] ) && isset( $mobile_focal_point['y'] ) ) {
+			$object_position = ( $mobile_focal_point['x'] * 100 ) . '% ' . ( $mobile_focal_point['y'] * 100 ) . '%';
 		}
-	}
 
-	if ( ! $mobile_image_url ) {
+		// Get the image with all WordPress attributes (srcset, sizes, etc.)
+		$mobile_image_html = wp_get_attachment_image(
+			$mobile_image_id,
+			$mobile_image_size,
+			false,
+			array(
+				'class'           => 'mosne-hero-mobile-image wp-block-cover__image-background wp-image-' . $mobile_image_id . ' size-' . $mobile_image_size,
+				'data-object-fit' => 'cover',
+				'alt' => '',
+				'data-object-position' => $object_position,
+				'style'           => 'object-position:' . esc_attr( $object_position ) . ';',
+			)
+		);
+	} else {
 		return $block_content;
 	}
-
-	// Calculate object-position from focal point
-	$object_position = '50% 50%';
-	if ( isset( $mobile_focal_point['x'] ) && isset( $mobile_focal_point['y'] ) ) {
-		$object_position = ( $mobile_focal_point['x'] * 100 ) . '% ' . ( $mobile_focal_point['y'] * 100 ) . '%';
-	}
-
-	// Add mobile image to the cover block
-	// The cover block structure: <div class="wp-block-cover">...<img class="wp-block-cover__image-background">...</div>
-	$mobile_image_html = sprintf(
-		'<img class="mosne-hero-mobile-image wp-block-cover__image-background" src="%s" alt="" style="object-position: %s; object-fit: cover;" />',
-		esc_url( $mobile_image_url ),
-		esc_attr( $object_position )
-	);
 
 	// Add class to cover block wrapper
 	// Handle different HTML structures WordPress might generate
