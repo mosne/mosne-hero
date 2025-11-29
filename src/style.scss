@@ -3,8 +3,8 @@
  */
 
 .wp-block-cover.has-mobile-image {
-
 	.mosne-hero-mobile-image {
+		display: none;
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -12,16 +12,14 @@
 		height: 100%;
 		object-fit: cover;
 
-		@media (min-width: 782px) {
+		@media (max-width: 782px) {
 			display: block;
 		}
 	}
 
 	.mosne-hero-desktop-image {
-		display: none;
-		
-		@media (min-width: 782px) {
-			display: block;
+		@media (max-width: 782px) {
+			display: none !important;
 		}
 	}
 }

@@ -2,6 +2,351 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/index.js":
+/*!**********************!*\
+  !*** ./src/index.js ***!
+  \**********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _style_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./style.scss */ "./src/style.scss");
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/blocks */ "@wordpress/blocks");
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/hooks */ "@wordpress/hooks");
+/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/compose */ "@wordpress/compose");
+/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_compose__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @wordpress/data */ "@wordpress/data");
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var _wordpress_blob__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @wordpress/blob */ "@wordpress/blob");
+/* harmony import */ var _wordpress_blob__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_wordpress_blob__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__);
+/**
+ * Registers the block variation and extends core/cover block.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-variations/
+ */
+
+// Import styles
+
+
+
+
+
+
+
+// MediaUpload and MediaUploadCheck need to be imported from block-editor
+
+
+// Import FocalPointPicker - check if it exists at runtime
+
+const FocalPointPicker = _wordpress_components__WEBPACK_IMPORTED_MODULE_5__.FocalPointPicker || null;
+
+
+
+
+
+/**
+ * Register block variation for core/cover with mobile image support.
+ */
+
+(0,_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__.registerBlockVariation)("core/cover", {
+  name: "mosne-hero-cover",
+  title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Hero Cover (Mobile & Desktop)", "mosne-hero"),
+  description: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Cover block with separate mobile and desktop background images.", "mosne-hero"),
+  attributes: {
+    variation: "mosne-hero-cover"
+  },
+  isDefault: false,
+  scope: ["inserter", "transform"]
+});
+
+/**
+ * Extend core/cover block with mobile image controls.
+ */
+const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3__.createHigherOrderComponent)(BlockEdit => {
+  return props => {
+    const {
+      name,
+      attributes,
+      setAttributes,
+      clientId
+    } = props;
+
+    // Debug: Log all blocks to see if HOC is running
+    if (typeof console !== "undefined" && console.log) {
+      console.log("HOC running for block:", name, attributes);
+    }
+
+    // Ensure BlockEdit is valid
+    if (!BlockEdit || typeof BlockEdit !== "function") {
+      return null;
+    }
+
+    // Only apply to core/cover blocks
+    if (name !== "core/cover") {
+      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(BlockEdit, {
+        ...props
+      });
+    }
+
+    // Debug: Log cover block attributes
+    if (typeof console !== "undefined" && console.log) {
+      console.log("Cover block detected:", {
+        name,
+        variation: attributes.variation,
+        allAttributes: attributes
+      });
+    }
+
+    // Check if this block uses our variation
+    // The variation attribute should be set when the variation is selected
+    const hasVariationAttr = attributes.variation === "mosne-hero-cover";
+
+    // Debug: Log variation check
+    if (typeof console !== "undefined" && console.log) {
+      console.log("Variation check:", {
+        hasVariationAttr,
+        variation: attributes.variation
+      });
+    }
+
+    // Show panel only if variation attribute is set
+    // This ensures it only appears for blocks created from our variation
+    if (!hasVariationAttr) {
+      if (typeof console !== "undefined" && console.log) {
+        console.log("Panel not showing - variation attribute not set");
+      }
+      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(BlockEdit, {
+        ...props
+      });
+    }
+
+    // Debug: Panel should show
+    if (typeof console !== "undefined" && console.log) {
+      console.log("Panel SHOULD be showing now!");
+    }
+    const {
+      mobileImageId = 0,
+      mobileImageUrl = "",
+      mobileFocalPoint,
+      mobileImageSize = "full"
+    } = attributes;
+
+    // Get mobile image data from media library
+    const mobileImage = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_7__.useSelect)(select => {
+      if (!mobileImageId || mobileImageId === 0) {
+        return null;
+      }
+      try {
+        const image = select("core").getMedia(mobileImageId);
+        // If image doesn't exist or is an error, return null
+        if (!image || image === undefined) {
+          return null;
+        }
+        return image;
+      } catch (error) {
+        // Media doesn't exist or can't be accessed
+        return null;
+      }
+    }, [mobileImageId]);
+
+    // Build image size options
+    // Using standard WordPress image sizes
+    const imageSizeOptions = [{
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Full Size", "mosne-hero"),
+      value: "full"
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Large", "mosne-hero"),
+      value: "large"
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Medium Large", "mosne-hero"),
+      value: "medium_large"
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Medium", "mosne-hero"),
+      value: "medium"
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Thumbnail", "mosne-hero"),
+      value: "thumbnail"
+    }];
+
+    // Helper function to get image URL for a specific size
+    const getImageUrlForSize = (image, size) => {
+      if (!image) {
+        return "";
+      }
+      if (size === "full") {
+        return image.source_url || image.url || "";
+      }
+      if (image.media_details?.sizes?.[size]?.source_url) {
+        return image.media_details.sizes[size].source_url;
+      }
+      return image.source_url || image.url || "";
+    };
+
+    // Update mobile image URL when image data or size changes
+    (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_8__.useEffect)(() => {
+      if (mobileImage) {
+        const url = getImageUrlForSize(mobileImage, mobileImageSize || "full");
+        if (url) {
+          setAttributes({
+            mobileImageUrl: url
+          });
+        }
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mobileImage, mobileImageSize]);
+
+    // Note: The 404 error is expected when media doesn't exist
+    // WordPress data store will handle this gracefully
+    // The mobileImage will be undefined/null if the media doesn't exist
+
+    const onSelectMobileImage = image => {
+      const size = mobileImageSize || "full";
+      const url = getImageUrlForSize(image, size);
+      setAttributes({
+        variation: attributes.variation || "mosne-hero-cover",
+        mobileImageId: image.id,
+        mobileImageUrl: url,
+        mobileFocalPoint: mobileFocalPoint || {
+          x: 0.5,
+          y: 0.5
+        },
+        mobileImageSize: mobileImageSize || "full"
+      });
+    };
+    const onRemoveMobileImage = () => {
+      setAttributes({
+        mobileImageId: 0,
+        mobileImageUrl: "",
+        mobileFocalPoint: undefined,
+        mobileImageSize: undefined
+      });
+    };
+    const mobileFocalPointValue = mobileFocalPoint || {
+      x: 0.5,
+      y: 0.5
+    };
+
+    // Ensure all required components are available
+    if (!_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.PanelBody || !_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.MediaUpload || !_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.MediaUploadCheck || !_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.SelectControl || !_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.Button) {
+      console.log("Missing components!", {
+        PanelBody: _wordpress_components__WEBPACK_IMPORTED_MODULE_5__.PanelBody,
+        MediaUpload: _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.MediaUpload,
+        MediaUploadCheck: _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.MediaUploadCheck,
+        SelectControl: _wordpress_components__WEBPACK_IMPORTED_MODULE_5__.SelectControl,
+        Button: _wordpress_components__WEBPACK_IMPORTED_MODULE_5__.Button
+      });
+      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(BlockEdit, {
+        ...props
+      });
+    }
+    if (!_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.InspectorControls) {
+      console.log("InspectorControls is not available!");
+      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(BlockEdit, {
+        ...props
+      });
+    }
+    console.log("About to render InspectorControls");
+    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.Fragment, {
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(BlockEdit, {
+        ...props
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.InspectorControls, {
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.PanelBody, {
+          title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Mobile Image", "mosne-hero"),
+          initialOpen: true,
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.MediaUploadCheck, {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.MediaUpload, {
+              onSelect: onSelectMobileImage,
+              allowedTypes: ["image"],
+              value: mobileImageId > 0 ? mobileImageId : undefined,
+              render: ({
+                open
+              }) => {
+                if (typeof open !== "function") {
+                  return null;
+                }
+                const hasImage = mobileImageUrl && typeof mobileImageUrl === "string" && !(0,_wordpress_blob__WEBPACK_IMPORTED_MODULE_9__.isBlobURL)(mobileImageUrl);
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
+                  children: hasImage ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.Fragment, {
+                    children: [FocalPointPicker && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(FocalPointPicker, {
+                      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Focal Point Picker", "mosne-hero"),
+                      url: mobileImageUrl,
+                      value: mobileFocalPointValue,
+                      onChange: value => {
+                        if (value && typeof value === "object" && typeof value.x === "number" && typeof value.y === "number") {
+                          setAttributes({
+                            mobileFocalPoint: value
+                          });
+                        }
+                      }
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.SelectControl, {
+                      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Image Size", "mosne-hero"),
+                      value: mobileImageSize || "full",
+                      options: imageSizeOptions,
+                      onChange: value => {
+                        setAttributes({
+                          mobileImageSize: value
+                        });
+                        if (mobileImage) {
+                          const url = getImageUrlForSize(mobileImage, value);
+                          if (url) {
+                            setAttributes({
+                              mobileImageUrl: url
+                            });
+                          }
+                        }
+                      }
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.Button, {
+                      onClick: onRemoveMobileImage,
+                      variant: "secondary",
+                      isDestructive: true,
+                      style: {
+                        marginTop: "10px",
+                        width: "100%"
+                      },
+                      children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Remove mobile image", "mosne-hero")
+                    })]
+                  }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.Button, {
+                    onClick: open,
+                    variant: "primary",
+                    children: mobileImageId && mobileImageId > 0 ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Replace mobile image", "mosne-hero") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Select mobile image", "mosne-hero")
+                  })
+                });
+              }
+            })
+          })
+        })
+      }, "mosne-hero-mobile-image")]
+    });
+  };
+}, "withMobileImageControls");
+(0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__.addFilter)("editor.BlockEdit", "mosne-hero/cover-with-mobile-image", withMobileImageControls, 20 // Higher priority to ensure it runs
+);
+
+/***/ }),
+
+/***/ "./src/style.scss":
+/*!************************!*\
+  !*** ./src/style.scss ***!
+  \************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "@wordpress/blob":
 /*!******************************!*\
   !*** external ["wp","blob"] ***!
@@ -128,7 +473,42 @@ module.exports = window["ReactJSXRuntime"];
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = __webpack_modules__;
+/******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/chunk loaded */
+/******/ 	(() => {
+/******/ 		var deferred = [];
+/******/ 		__webpack_require__.O = (result, chunkIds, fn, priority) => {
+/******/ 			if(chunkIds) {
+/******/ 				priority = priority || 0;
+/******/ 				for(var i = deferred.length; i > 0 && deferred[i - 1][2] > priority; i--) deferred[i] = deferred[i - 1];
+/******/ 				deferred[i] = [chunkIds, fn, priority];
+/******/ 				return;
+/******/ 			}
+/******/ 			var notFulfilled = Infinity;
+/******/ 			for (var i = 0; i < deferred.length; i++) {
+/******/ 				var [chunkIds, fn, priority] = deferred[i];
+/******/ 				var fulfilled = true;
+/******/ 				for (var j = 0; j < chunkIds.length; j++) {
+/******/ 					if ((priority & 1 === 0 || notFulfilled >= priority) && Object.keys(__webpack_require__.O).every((key) => (__webpack_require__.O[key](chunkIds[j])))) {
+/******/ 						chunkIds.splice(j--, 1);
+/******/ 					} else {
+/******/ 						fulfilled = false;
+/******/ 						if(priority < notFulfilled) notFulfilled = priority;
+/******/ 					}
+/******/ 				}
+/******/ 				if(fulfilled) {
+/******/ 					deferred.splice(i--, 1)
+/******/ 					var r = fn();
+/******/ 					if (r !== undefined) result = r;
+/******/ 				}
+/******/ 			}
+/******/ 			return result;
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	(() => {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
@@ -169,335 +549,68 @@ module.exports = window["ReactJSXRuntime"];
 /******/ 		};
 /******/ 	})();
 /******/ 	
+/******/ 	/* webpack/runtime/jsonp chunk loading */
+/******/ 	(() => {
+/******/ 		// no baseURI
+/******/ 		
+/******/ 		// object to store loaded and loading chunks
+/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
+/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
+/******/ 		var installedChunks = {
+/******/ 			"index": 0,
+/******/ 			"./style-index": 0
+/******/ 		};
+/******/ 		
+/******/ 		// no chunk on demand loading
+/******/ 		
+/******/ 		// no prefetching
+/******/ 		
+/******/ 		// no preloaded
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 		
+/******/ 		__webpack_require__.O.j = (chunkId) => (installedChunks[chunkId] === 0);
+/******/ 		
+/******/ 		// install a JSONP callback for chunk loading
+/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
+/******/ 			var [chunkIds, moreModules, runtime] = data;
+/******/ 			// add "moreModules" to the modules object,
+/******/ 			// then flag all "chunkIds" as loaded and fire callback
+/******/ 			var moduleId, chunkId, i = 0;
+/******/ 			if(chunkIds.some((id) => (installedChunks[id] !== 0))) {
+/******/ 				for(moduleId in moreModules) {
+/******/ 					if(__webpack_require__.o(moreModules, moduleId)) {
+/******/ 						__webpack_require__.m[moduleId] = moreModules[moduleId];
+/******/ 					}
+/******/ 				}
+/******/ 				if(runtime) var result = runtime(__webpack_require__);
+/******/ 			}
+/******/ 			if(parentChunkLoadingFunction) parentChunkLoadingFunction(data);
+/******/ 			for(;i < chunkIds.length; i++) {
+/******/ 				chunkId = chunkIds[i];
+/******/ 				if(__webpack_require__.o(installedChunks, chunkId) && installedChunks[chunkId]) {
+/******/ 					installedChunks[chunkId][0]();
+/******/ 				}
+/******/ 				installedChunks[chunkId] = 0;
+/******/ 			}
+/******/ 			return __webpack_require__.O(result);
+/******/ 		}
+/******/ 		
+/******/ 		var chunkLoadingGlobal = globalThis["webpackChunkmosne_hero"] = globalThis["webpackChunkmosne_hero"] || [];
+/******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
+/******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
+/******/ 	})();
+/******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
-(() => {
-/*!**********************!*\
-  !*** ./src/index.js ***!
-  \**********************/
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/blocks */ "@wordpress/blocks");
-/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/hooks */ "@wordpress/hooks");
-/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_hooks__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/compose */ "@wordpress/compose");
-/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_compose__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
-/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @wordpress/data */ "@wordpress/data");
-/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var _wordpress_blob__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @wordpress/blob */ "@wordpress/blob");
-/* harmony import */ var _wordpress_blob__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_wordpress_blob__WEBPACK_IMPORTED_MODULE_8__);
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__);
-/**
- * Registers the block variation and extends core/cover block.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-variations/
- */
-
-
-
-
-
-
-// MediaUpload and MediaUploadCheck need to be imported from block-editor
-
-
-// Import FocalPointPicker - check if it exists at runtime
-
-const FocalPointPicker = _wordpress_components__WEBPACK_IMPORTED_MODULE_4__.FocalPointPicker || null;
-
-
-
-
-
-/**
- * Register block variation for core/cover with mobile image support.
- */
-
-(0,_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__.registerBlockVariation)("core/cover", {
-  name: "mosne-hero-cover",
-  title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Hero Cover (Mobile & Desktop)", "mosne-hero"),
-  description: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Cover block with separate mobile and desktop background images.", "mosne-hero"),
-  attributes: {
-    variation: "mosne-hero-cover"
-  },
-  isDefault: false,
-  scope: ["inserter", "transform"]
-});
-
-/**
- * Extend core/cover block with mobile image controls.
- */
-const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_2__.createHigherOrderComponent)(BlockEdit => {
-  return props => {
-    const {
-      name,
-      attributes,
-      setAttributes,
-      clientId
-    } = props;
-
-    // Debug: Log all blocks to see if HOC is running
-    if (typeof console !== "undefined" && console.log) {
-      console.log("HOC running for block:", name, attributes);
-    }
-
-    // Ensure BlockEdit is valid
-    if (!BlockEdit || typeof BlockEdit !== "function") {
-      return null;
-    }
-
-    // Only apply to core/cover blocks
-    if (name !== "core/cover") {
-      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(BlockEdit, {
-        ...props
-      });
-    }
-
-    // Debug: Log cover block attributes
-    if (typeof console !== "undefined" && console.log) {
-      console.log("Cover block detected:", {
-        name,
-        variation: attributes.variation,
-        allAttributes: attributes
-      });
-    }
-
-    // Check if this block uses our variation
-    // The variation attribute should be set when the variation is selected
-    const hasVariationAttr = attributes.variation === "mosne-hero-cover";
-
-    // Debug: Log variation check
-    if (typeof console !== "undefined" && console.log) {
-      console.log("Variation check:", {
-        hasVariationAttr,
-        variation: attributes.variation
-      });
-    }
-
-    // Show panel only if variation attribute is set
-    // This ensures it only appears for blocks created from our variation
-    if (!hasVariationAttr) {
-      if (typeof console !== "undefined" && console.log) {
-        console.log("Panel not showing - variation attribute not set");
-      }
-      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(BlockEdit, {
-        ...props
-      });
-    }
-
-    // Debug: Panel should show
-    if (typeof console !== "undefined" && console.log) {
-      console.log("Panel SHOULD be showing now!");
-    }
-    const {
-      mobileImageId = 0,
-      mobileImageUrl = "",
-      mobileFocalPoint,
-      mobileImageSize = "full"
-    } = attributes;
-
-    // Get mobile image data from media library
-    const mobileImage = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_6__.useSelect)(select => {
-      if (!mobileImageId || mobileImageId === 0) {
-        return null;
-      }
-      try {
-        const image = select("core").getMedia(mobileImageId);
-        // If image doesn't exist or is an error, return null
-        if (!image || image === undefined) {
-          return null;
-        }
-        return image;
-      } catch (error) {
-        // Media doesn't exist or can't be accessed
-        return null;
-      }
-    }, [mobileImageId]);
-
-    // Build image size options
-    // Using standard WordPress image sizes
-    const imageSizeOptions = [{
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Full Size", "mosne-hero"),
-      value: "full"
-    }, {
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Large", "mosne-hero"),
-      value: "large"
-    }, {
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Medium Large", "mosne-hero"),
-      value: "medium_large"
-    }, {
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Medium", "mosne-hero"),
-      value: "medium"
-    }, {
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Thumbnail", "mosne-hero"),
-      value: "thumbnail"
-    }];
-
-    // Helper function to get image URL for a specific size
-    const getImageUrlForSize = (image, size) => {
-      if (!image) {
-        return "";
-      }
-      if (size === "full") {
-        return image.source_url || image.url || "";
-      }
-      if (image.media_details?.sizes?.[size]?.source_url) {
-        return image.media_details.sizes[size].source_url;
-      }
-      return image.source_url || image.url || "";
-    };
-
-    // Update mobile image URL when image data or size changes
-    (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_7__.useEffect)(() => {
-      if (mobileImage) {
-        const url = getImageUrlForSize(mobileImage, mobileImageSize || "full");
-        if (url) {
-          setAttributes({
-            mobileImageUrl: url
-          });
-        }
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [mobileImage, mobileImageSize]);
-
-    // Note: The 404 error is expected when media doesn't exist
-    // WordPress data store will handle this gracefully
-    // The mobileImage will be undefined/null if the media doesn't exist
-
-    const onSelectMobileImage = image => {
-      const size = mobileImageSize || "full";
-      const url = getImageUrlForSize(image, size);
-      setAttributes({
-        variation: attributes.variation || "mosne-hero-cover",
-        mobileImageId: image.id,
-        mobileImageUrl: url,
-        mobileFocalPoint: mobileFocalPoint || {
-          x: 0.5,
-          y: 0.5
-        },
-        mobileImageSize: mobileImageSize || "full"
-      });
-    };
-    const onRemoveMobileImage = () => {
-      setAttributes({
-        mobileImageId: 0,
-        mobileImageUrl: "",
-        mobileFocalPoint: undefined,
-        mobileImageSize: undefined
-      });
-    };
-    const mobileFocalPointValue = mobileFocalPoint || {
-      x: 0.5,
-      y: 0.5
-    };
-
-    // Ensure all required components are available
-    if (!_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody || !_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUpload || !_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUploadCheck || !_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.SelectControl || !_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Button) {
-      console.log("Missing components!", {
-        PanelBody: _wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody,
-        MediaUpload: _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUpload,
-        MediaUploadCheck: _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUploadCheck,
-        SelectControl: _wordpress_components__WEBPACK_IMPORTED_MODULE_4__.SelectControl,
-        Button: _wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Button
-      });
-      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(BlockEdit, {
-        ...props
-      });
-    }
-    if (!_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.InspectorControls) {
-      console.log("InspectorControls is not available!");
-      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(BlockEdit, {
-        ...props
-      });
-    }
-    console.log("About to render InspectorControls");
-    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.Fragment, {
-      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(BlockEdit, {
-        ...props
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.InspectorControls, {
-        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody, {
-          title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Mobile Image", "mosne-hero"),
-          initialOpen: true,
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUploadCheck, {
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUpload, {
-              onSelect: onSelectMobileImage,
-              allowedTypes: ["image"],
-              value: mobileImageId > 0 ? mobileImageId : undefined,
-              render: ({
-                open
-              }) => {
-                if (typeof open !== "function") {
-                  return null;
-                }
-                const hasImage = mobileImageUrl && typeof mobileImageUrl === "string" && !(0,_wordpress_blob__WEBPACK_IMPORTED_MODULE_8__.isBlobURL)(mobileImageUrl);
-                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
-                  children: hasImage ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.Fragment, {
-                    children: [FocalPointPicker && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(FocalPointPicker, {
-                      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Focal Point Picker", "mosne-hero"),
-                      url: mobileImageUrl,
-                      value: mobileFocalPointValue,
-                      onChange: value => {
-                        if (value && typeof value === "object" && typeof value.x === "number" && typeof value.y === "number") {
-                          setAttributes({
-                            mobileFocalPoint: value
-                          });
-                        }
-                      }
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.SelectControl, {
-                      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Image Size", "mosne-hero"),
-                      value: mobileImageSize || "full",
-                      options: imageSizeOptions,
-                      onChange: value => {
-                        setAttributes({
-                          mobileImageSize: value
-                        });
-                        if (mobileImage) {
-                          const url = getImageUrlForSize(mobileImage, value);
-                          if (url) {
-                            setAttributes({
-                              mobileImageUrl: url
-                            });
-                          }
-                        }
-                      }
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Button, {
-                      onClick: onRemoveMobileImage,
-                      variant: "secondary",
-                      isDestructive: true,
-                      style: {
-                        marginTop: "10px",
-                        width: "100%"
-                      },
-                      children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Remove mobile image", "mosne-hero")
-                    })]
-                  }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Button, {
-                    onClick: open,
-                    variant: "primary",
-                    children: mobileImageId && mobileImageId > 0 ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Replace mobile image", "mosne-hero") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Select mobile image", "mosne-hero")
-                  })
-                });
-              }
-            })
-          })
-        })
-      }, "mosne-hero-mobile-image")]
-    });
-  };
-}, "withMobileImageControls");
-(0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_1__.addFilter)("editor.BlockEdit", "mosne-hero/cover-with-mobile-image", withMobileImageControls, 20 // Higher priority to ensure it runs
-);
-})();
-
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["./style-index"], () => (__webpack_require__("./src/index.js")))
+/******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
+/******/ 	
 /******/ })()
 ;
 //# sourceMappingURL=index.js.map

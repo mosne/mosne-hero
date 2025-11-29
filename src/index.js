@@ -3,6 +3,10 @@
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-variations/
  */
+
+// Import styles
+import "./style.scss";
+
 import { registerBlockVariation } from "@wordpress/blocks";
 import { addFilter } from "@wordpress/hooks";
 import { createHigherOrderComponent } from "@wordpress/compose";
