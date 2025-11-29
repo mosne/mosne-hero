@@ -48,6 +48,10 @@ function mosne_hero_register_cover_attributes( $metadata ) {
 		$metadata['attributes']['mobileImageSize'] = array(
 			'type' => 'string',
 		);
+
+		$metadata['attributes']['mobileImageAlt'] = array(
+			'type' => 'string',
+		);
 	}
 
 	return $metadata;
@@ -201,6 +205,7 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 	$mobile_image_id   = $attributes['mobileImageId'] ?? 0;
 	$mobile_focal_point = $attributes['mobileFocalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
 	$mobile_image_size  = $attributes['mobileImageSize'] ?? 'large';
+	$mobile_image_alt   = $attributes['mobileImageAlt'] ?? '';
 
 	// If no mobile image, return as-is
 	if ( ! $mobile_image_id ) {
@@ -215,6 +220,15 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 			$object_position = ( $mobile_focal_point['x'] * 100 ) . '% ' . ( $mobile_focal_point['y'] * 100 ) . '%';
 		}
 
+		// Get alt text - use custom alt if provided, otherwise use attachment alt
+		$alt_text = $mobile_image_alt;
+		if ( empty( $alt_text ) ) {
+			$alt_text = get_post_meta( $mobile_image_id, '_wp_attachment_image_alt', true );
+		}
+		if ( empty( $alt_text ) ) {
+			$alt_text = '';
+		}
+
 		// Get the image with all WordPress attributes (srcset, sizes, etc.)
 		$mobile_image_html = wp_get_attachment_image(
 			$mobile_image_id,
@@ -223,7 +237,7 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 			array(
 				'class'           => 'mosne-hero-mobile-image wp-block-cover__image-background wp-image-' . $mobile_image_id . ' size-' . $mobile_image_size,
 				'data-object-fit' => 'cover',
-				'alt' => '',
+				'alt'             => $alt_text,
 				'data-object-position' => $object_position,
 				'style'           => 'object-position:' . esc_attr( $object_position ) . ';',
 			)

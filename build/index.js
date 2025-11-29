@@ -139,7 +139,8 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
       mobileImageId = 0,
       mobileImageUrl = "",
       mobileFocalPoint,
-      mobileImageSize = "full"
+      mobileImageSize = "full",
+      mobileImageAlt = ""
     } = attributes;
 
     // Get mobile image data from media library
@@ -221,7 +222,8 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
           x: 0.5,
           y: 0.5
         },
-        mobileImageSize: mobileImageSize || "full"
+        mobileImageSize: mobileImageSize || "full",
+        mobileImageAlt: mobileImageAlt || image.alt || ""
       });
     };
     const onRemoveMobileImage = () => {
@@ -229,7 +231,8 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
         mobileImageId: 0,
         mobileImageUrl: "",
         mobileFocalPoint: undefined,
-        mobileImageSize: undefined
+        mobileImageSize: undefined,
+        mobileImageAlt: ""
       });
     };
     const mobileFocalPointValue = mobileFocalPoint || {
@@ -306,6 +309,13 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
                           }
                         }
                       }
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.TextControl, {
+                      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Alt Text", "mosne-hero"),
+                      value: mobileImageAlt || "",
+                      onChange: value => setAttributes({
+                        mobileImageAlt: value
+                      }),
+                      help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Describe the purpose of the image. Leave empty to use the image's default alt text.", "mosne-hero")
                     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.Button, {
                       onClick: onRemoveMobileImage,
                       variant: "secondary",

@@ -14,6 +14,7 @@ import { InspectorControls } from "@wordpress/block-editor";
 import {
 	PanelBody,
 	SelectControl,
+	TextControl,
 	Button,
 } from "@wordpress/components";
 
@@ -110,6 +111,7 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 			mobileImageUrl = "",
 			mobileFocalPoint,
 			mobileImageSize = "full",
+			mobileImageAlt = "",
 		} = attributes;
 
 		// Get mobile image data from media library
@@ -184,6 +186,7 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 				mobileImageUrl: url,
 				mobileFocalPoint: mobileFocalPoint || { x: 0.5, y: 0.5 },
 				mobileImageSize: mobileImageSize || "full",
+				mobileImageAlt: mobileImageAlt || image.alt || "",
 			});
 		};
 
@@ -193,6 +196,7 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 				mobileImageUrl: "",
 				mobileFocalPoint: undefined,
 				mobileImageSize: undefined,
+				mobileImageAlt: "",
 			});
 		};
 
@@ -259,6 +263,17 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 																}
 															}
 														}}
+													/>
+													<TextControl
+														label={__("Alt Text", "mosne-hero")}
+														value={mobileImageAlt || ""}
+														onChange={(value) =>
+															setAttributes({ mobileImageAlt: value })
+														}
+														help={__(
+															"Describe the purpose of the image. Leave empty to use the image's default alt text.",
+															"mosne-hero"
+														)}
 													/>
 													<Button
 														onClick={onRemoveMobileImage}
