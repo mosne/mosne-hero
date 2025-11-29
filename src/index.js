@@ -15,6 +15,7 @@ import {
 	PanelBody,
 	SelectControl,
 	TextControl,
+	ToggleControl,
 	Button,
 } from "@wordpress/components";
 
@@ -112,6 +113,7 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 			mobileFocalPoint,
 			mobileImageSize = "large",
 			mobileImageAlt = "",
+			highFetchPriority = false,
 		} = attributes;
 
 		// Get mobile image data from media library
@@ -272,6 +274,17 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 														}
 														help={__(
 															"Describe the purpose of the image. Leave empty to use the image's default alt text.",
+															"mosne-hero"
+														)}
+													/>
+													<ToggleControl
+														label={__("High Fetch Priority", "mosne-hero")}
+														checked={highFetchPriority}
+														onChange={(value) =>
+															setAttributes({ highFetchPriority: value })
+														}
+														help={__(
+															"Prioritize loading of both desktop and mobile images. Use for above-the-fold hero images.",
 															"mosne-hero"
 														)}
 													/>

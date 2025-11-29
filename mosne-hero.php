@@ -52,6 +52,11 @@ function mosne_hero_register_cover_attributes( $metadata ) {
 		$metadata['attributes']['mobileImageAlt'] = array(
 			'type' => 'string',
 		);
+
+		$metadata['attributes']['highFetchPriority'] = array(
+			'type' => 'boolean',
+			'default' => false,
+		);
 	}
 
 	return $metadata;
@@ -206,6 +211,7 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 	$mobile_focal_point = $attributes['mobileFocalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
 	$mobile_image_size  = $attributes['mobileImageSize'] ?? 'large';
 	$mobile_image_alt   = $attributes['mobileImageAlt'] ?? '';
+	$high_fetch_priority = $attributes['highFetchPriority'] ?? false;
 
 	// If no mobile image, return as-is
 	if ( ! $mobile_image_id ) {
@@ -229,18 +235,26 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 			$alt_text = '';
 		}
 
+		// Build attributes array for mobile image
+		$mobile_image_attrs = array(
+			'class'           => 'mosne-hero-mobile-image wp-block-cover__image-background wp-image-' . $mobile_image_id . ' size-' . $mobile_image_size,
+			'data-object-fit' => 'cover',
+			'alt'             => $alt_text,
+			'data-object-position' => $object_position,
+			'style'           => 'object-position:' . esc_attr( $object_position ) . ';',
+		);
+
+		// Add fetchpriority if enabled
+		if ( $high_fetch_priority ) {
+			$mobile_image_attrs['fetchpriority'] = 'high';
+		}
+
 		// Get the image with all WordPress attributes (srcset, sizes, etc.)
 		$mobile_image_html = wp_get_attachment_image(
 			$mobile_image_id,
 			$mobile_image_size,
 			false,
-			array(
-				'class'           => 'mosne-hero-mobile-image wp-block-cover__image-background wp-image-' . $mobile_image_id . ' size-' . $mobile_image_size,
-				'data-object-fit' => 'cover',
-				'alt'             => $alt_text,
-				'data-object-position' => $object_position,
-				'style'           => 'object-position:' . esc_attr( $object_position ) . ';',
-			)
+			$mobile_image_attrs
 		);
 	} else {
 		return $block_content;
@@ -278,6 +292,20 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 			$block_content,
 			1
 		);
+	}
+
+	// Add fetchpriority to desktop image if enabled
+	if ( $high_fetch_priority ) {
+		// Check if desktop image already has fetchpriority
+		if ( strpos( $block_content, 'fetchpriority="high"' ) === false && strpos( $block_content, "fetchpriority='high'" ) === false ) {
+			// Add fetchpriority to desktop image
+			$block_content = preg_replace(
+				'/(<img[^>]*class="[^"]*mosne-hero-desktop-image[^"]*"[^>]*)(>)/i',
+				'$1 fetchpriority="high"$2',
+				$block_content,
+				1
+			);
+		}
 	}
 
 	// Add mobile image BEFORE desktop image (only if not already added)

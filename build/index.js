@@ -140,7 +140,8 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
       mobileImageUrl = "",
       mobileFocalPoint,
       mobileImageSize = "large",
-      mobileImageAlt = ""
+      mobileImageAlt = "",
+      highFetchPriority = false
     } = attributes;
 
     // Get mobile image data from media library
@@ -316,6 +317,13 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
                         mobileImageAlt: value
                       }),
                       help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Describe the purpose of the image. Leave empty to use the image's default alt text.", "mosne-hero")
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.ToggleControl, {
+                      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("High Fetch Priority", "mosne-hero"),
+                      checked: highFetchPriority,
+                      onChange: value => setAttributes({
+                        highFetchPriority: value
+                      }),
+                      help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Prioritize loading of both desktop and mobile images. Use for above-the-fold hero images.", "mosne-hero")
                     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.Button, {
                       onClick: onRemoveMobileImage,
                       variant: "secondary",
