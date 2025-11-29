@@ -1,16 +1,16 @@
 <?php
 /**
  * Plugin Name:       Mosne Hero
- * Description:       A cover block with separate mobile and desktop background images stored in post meta.
+ * Description:       Extends core/cover block with separate mobile and desktop background images.
  * Version:           0.1.0
  * Requires at least: 6.7
- * Requires PHP:        7.4
+ * Requires PHP:      7.4
  * Author:            The WordPress Contributors
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       mosne-hero
  *
- * @package CreateBlock
+ * @package MosneHero
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,82 +18,77 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Registers the block using a `blocks-manifest.php` file, which improves the performance of block type registration.
- * Behind the scenes, it also registers all assets so they can be enqueued
- * through the block editor in the corresponding context.
+ * Register additional attributes for core/cover block.
  *
- * @see https://make.wordpress.org/core/2025/03/13/more-efficient-block-type-registration-in-6-8/
- * @see https://make.wordpress.org/core/2024/10/17/new-block-type-registration-apis-to-improve-performance-in-wordpress-6-7/
+ * @param array $metadata Block metadata.
+ * @return array Modified metadata.
  */
-function create_block_mosne_hero_block_init() {
-	/**
-	 * Registers the block(s) metadata from the `blocks-manifest.php` and registers the block type(s)
-	 * based on the registered block metadata.
-	 * Added in WordPress 6.8 to simplify the block metadata registration process added in WordPress 6.7.
-	 *
-	 * @see https://make.wordpress.org/core/2025/03/13/more-efficient-block-type-registration-in-6-8/
-	 */
-	if ( function_exists( 'wp_register_block_types_from_metadata_collection' ) ) {
-		wp_register_block_types_from_metadata_collection( __DIR__ . '/build', __DIR__ . '/build/blocks-manifest.php' );
-	} elseif ( function_exists( 'wp_register_block_metadata_collection' ) ) {
-		/**
-		 * Registers the block(s) metadata from the `blocks-manifest.php` file.
-		 * Added to WordPress 6.7 to improve the performance of block type registration.
-		 *
-		 * @see https://make.wordpress.org/core/2024/10/17/new-block-type-registration-apis-to-improve-performance-in-wordpress-6-7/
-		 */
-		wp_register_block_metadata_collection( __DIR__ . '/build', __DIR__ . '/build/blocks-manifest.php' );
+function mosne_hero_register_cover_attributes( $metadata ) {
+	if ( 'core/cover' === $metadata['name'] ) {
+		if ( ! isset( $metadata['attributes'] ) ) {
+			$metadata['attributes'] = array();
+		}
+
+		$metadata['attributes']['variation'] = array(
+			'type' => 'string',
+		);
+
+		$metadata['attributes']['mobileImageId'] = array(
+			'type' => 'number',
+		);
+
+		$metadata['attributes']['mobileImageUrl'] = array(
+			'type' => 'string',
+		);
+
+		$metadata['attributes']['mobileFocalPoint'] = array(
+			'type' => 'object',
+		);
+
+		$metadata['attributes']['mobileImageSize'] = array(
+			'type' => 'string',
+		);
 	}
 
-	/**
-	 * Registers the block type(s) in the `blocks-manifest.php` file.
-	 *
-	 * @see https://developer.wordpress.org/reference/functions/register_block_type/
-	 */
-	$manifest_data = require __DIR__ . '/build/blocks-manifest.php';
-	foreach ( array_keys( $manifest_data ) as $block_type ) {
-		register_block_type( __DIR__ . "/build/{$block_type}" );
-	}
+	return $metadata;
 }
-add_action( 'init', 'create_block_mosne_hero_block_init' );
+add_filter( 'block_type_metadata', 'mosne_hero_register_cover_attributes' );
 
 /**
- * Register meta fields for the block.
+ * Enqueue block editor assets.
  *
  * @return void
  */
-function create_block_mosne_hero_register_meta() {
+function mosne_hero_enqueue_assets() {
+	$asset_file = include plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
+
+	wp_enqueue_script(
+		'mosne-hero-editor',
+		plugin_dir_url( __FILE__ ) . 'build/index.js',
+		$asset_file['dependencies'],
+		$asset_file['version'],
+		true
+	);
+
+	wp_enqueue_style(
+		'mosne-hero-style',
+		plugin_dir_url( __FILE__ ) . 'build/style-index.css',
+		array(),
+		$asset_file['version']
+	);
+}
+add_action( 'enqueue_block_editor_assets', 'mosne_hero_enqueue_assets' );
+add_action( 'wp_enqueue_scripts', 'mosne_hero_enqueue_assets' );
+
+/**
+ * Register meta fields for mobile image.
+ *
+ * @return void
+ */
+function mosne_hero_register_meta() {
 	$post_types = get_post_types( array( 'public' => true ), 'names' );
 
 	foreach ( $post_types as $post_type ) {
-		// Register desktop image meta
-		register_post_meta(
-			$post_type,
-			'_mosne_hero_desktop_image_id',
-			array(
-				'show_in_rest' => true,
-				'single'       => true,
-				'type'         => 'integer',
-				'auth_callback' => function() {
-					return current_user_can( 'edit_posts' );
-				},
-			)
-		);
-
-		register_post_meta(
-			$post_type,
-			'_mosne_hero_desktop_image_url',
-			array(
-				'show_in_rest' => true,
-				'single'       => true,
-				'type'         => 'string',
-				'auth_callback' => function() {
-					return current_user_can( 'edit_posts' );
-				},
-			)
-		);
-
-		// Register mobile image meta
 		register_post_meta(
 			$post_type,
 			'_mosne_hero_mobile_image_id',
@@ -121,17 +116,16 @@ function create_block_mosne_hero_register_meta() {
 		);
 	}
 }
-add_action( 'init', 'create_block_mosne_hero_register_meta' );
+add_action( 'init', 'mosne_hero_register_meta' );
 
 /**
- * Save block meta data when post is saved.
- * This extracts image data from block attributes and saves to post meta.
+ * Save mobile image meta when post is saved.
  *
  * @param int     $post_id Post ID.
  * @param WP_Post $post    Post object.
  * @return void
  */
-function create_block_mosne_hero_save_meta( $post_id, $post ) {
+function mosne_hero_save_meta( $post_id, $post ) {
 	// Check autosave
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 		return;
@@ -158,78 +152,138 @@ function create_block_mosne_hero_save_meta( $post_id, $post ) {
 		return;
 	}
 
-	// Find mosne-hero blocks and save their meta
+	// Find core/cover blocks with our variation and save mobile image meta
 	foreach ( $blocks as $block ) {
-		if ( 'create-block/mosne-hero' === $block['blockName'] ) {
+		if ( 'core/cover' === $block['blockName'] ) {
 			$attrs = $block['attrs'] ?? array();
 
-			// Save desktop image
-			if ( isset( $attrs['desktopImageId'] ) && $attrs['desktopImageId'] > 0 ) {
-				$desktop_id = absint( $attrs['desktopImageId'] );
-				update_post_meta( $post_id, '_mosne_hero_desktop_image_id', $desktop_id );
+			// Check if this is our variation
+			if ( isset( $attrs['variation'] ) && 'mosne-hero-cover' === $attrs['variation'] ) {
+				// Save mobile image
+				if ( isset( $attrs['mobileImageId'] ) && $attrs['mobileImageId'] > 0 ) {
+					$mobile_id = absint( $attrs['mobileImageId'] );
+					update_post_meta( $post_id, '_mosne_hero_mobile_image_id', $mobile_id );
 
-				if ( isset( $attrs['desktopImageUrl'] ) && ! empty( $attrs['desktopImageUrl'] ) ) {
-					update_post_meta( $post_id, '_mosne_hero_desktop_image_url', esc_url_raw( $attrs['desktopImageUrl'] ) );
+					if ( isset( $attrs['mobileImageUrl'] ) && ! empty( $attrs['mobileImageUrl'] ) ) {
+						update_post_meta( $post_id, '_mosne_hero_mobile_image_url', esc_url_raw( $attrs['mobileImageUrl'] ) );
+					}
+				} else {
+					// Remove meta if image is removed
+					delete_post_meta( $post_id, '_mosne_hero_mobile_image_id' );
+					delete_post_meta( $post_id, '_mosne_hero_mobile_image_url' );
 				}
-			} else {
-				// Remove meta if image is removed
-				delete_post_meta( $post_id, '_mosne_hero_desktop_image_id' );
-				delete_post_meta( $post_id, '_mosne_hero_desktop_image_url' );
-			}
-
-			// Save mobile image
-			if ( isset( $attrs['mobileImageId'] ) && $attrs['mobileImageId'] > 0 ) {
-				$mobile_id = absint( $attrs['mobileImageId'] );
-				update_post_meta( $post_id, '_mosne_hero_mobile_image_id', $mobile_id );
-
-				if ( isset( $attrs['mobileImageUrl'] ) && ! empty( $attrs['mobileImageUrl'] ) ) {
-					update_post_meta( $post_id, '_mosne_hero_mobile_image_url', esc_url_raw( $attrs['mobileImageUrl'] ) );
-				}
-			} else {
-				// Remove meta if image is removed
-				delete_post_meta( $post_id, '_mosne_hero_mobile_image_id' );
-				delete_post_meta( $post_id, '_mosne_hero_mobile_image_url' );
 			}
 		}
 	}
 }
-add_action( 'save_post', 'create_block_mosne_hero_save_meta', 10, 2 );
+add_action( 'save_post', 'mosne_hero_save_meta', 10, 2 );
 
 /**
- * Filter block content to include meta data on frontend.
- * This ensures meta values are available even if block attributes are empty.
+ * Filter cover block output to add mobile image.
  *
  * @param string $block_content The rendered block content.
  * @param array  $parsed_block  The parsed block array.
  * @return string Filtered block content.
  */
-function create_block_mosne_hero_render_block( $block_content, $parsed_block ) {
-	// Check if this is our block
-	if ( 'create-block/mosne-hero' !== ( $parsed_block['blockName'] ?? '' ) ) {
+function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
+	// Check if this is a core/cover block with our variation
+	if ( 'core/cover' !== ( $parsed_block['blockName'] ?? '' ) ) {
 		return $block_content;
 	}
 
-	// Get post ID
-	$post_id = get_the_ID();
-
-	if ( ! $post_id ) {
-		return $block_content;
-	}
-
-	// Get attributes from parsed block
 	$attributes = $parsed_block['attrs'] ?? array();
 
-	// Get meta values
-	$desktop_image_id  = get_post_meta( $post_id, '_mosne_hero_desktop_image_id', true );
-	$desktop_image_url = get_post_meta( $post_id, '_mosne_hero_desktop_image_url', true );
-	$mobile_image_id   = get_post_meta( $post_id, '_mosne_hero_mobile_image_id', true );
-	$mobile_image_url  = get_post_meta( $post_id, '_mosne_hero_mobile_image_url', true );
+	if ( ! isset( $attributes['variation'] ) || 'mosne-hero-cover' !== $attributes['variation'] ) {
+		return $block_content;
+	}
 
-	// If meta exists but attributes are empty, we need to re-render with meta values
-	// However, since the block is already rendered, we'll use a different approach:
-	// We'll modify the content directly if needed, or just return it as-is
-	// The meta values should already be in the attributes when the block is saved
+	// Get mobile image attributes
+	$mobile_image_id   = $attributes['mobileImageId'] ?? 0;
+	$mobile_image_url  = $attributes['mobileImageUrl'] ?? '';
+	$mobile_focal_point = $attributes['mobileFocalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
+	$mobile_image_size  = $attributes['mobileImageSize'] ?? 'full';
+
+	// Get desktop image attributes for comparison
+	$desktop_image_id = $attributes['id'] ?? 0;
+
+	// If no mobile image, return as-is
+	if ( ! $mobile_image_id && ! $mobile_image_url ) {
+		return $block_content;
+	}
+
+	// Get image URL if we have ID but no URL
+	if ( $mobile_image_id && ! $mobile_image_url ) {
+		$image = wp_get_attachment_image_src( $mobile_image_id, $mobile_image_size );
+		if ( $image && isset( $image[0] ) ) {
+			$mobile_image_url = $image[0];
+		}
+	}
+
+	if ( ! $mobile_image_url ) {
+		return $block_content;
+	}
+
+	// Calculate object-position from focal point
+	$object_position = '50% 50%';
+	if ( isset( $mobile_focal_point['x'] ) && isset( $mobile_focal_point['y'] ) ) {
+		$object_position = ( $mobile_focal_point['x'] * 100 ) . '% ' . ( $mobile_focal_point['y'] * 100 ) . '%';
+	}
+
+	// Add mobile image to the cover block
+	// The cover block structure: <div class="wp-block-cover">...<img class="wp-block-cover__image-background">...</div>
+	$mobile_image_html = sprintf(
+		'<img class="mosne-hero-mobile-image wp-block-cover__image-background" src="%s" alt="" style="object-position: %s; object-fit: cover;" />',
+		esc_url( $mobile_image_url ),
+		esc_attr( $object_position )
+	);
+
+	// Add class to cover block wrapper
+	// Handle different HTML structures WordPress might generate
+	if ( strpos( $block_content, 'has-mobile-image' ) === false ) {
+		// Try to add class to the main wp-block-cover div
+		$block_content = preg_replace(
+			'/(<div[^>]*class=")([^"]*wp-block-cover[^"]*)([^"]*")/i',
+			'$1$2 has-mobile-image$3',
+			$block_content,
+			1
+		);
+		
+		// If that didn't work, try adding it to any div with wp-block-cover
+		if ( strpos( $block_content, 'has-mobile-image' ) === false ) {
+			$block_content = preg_replace(
+				'/(<div[^>]*class="[^"]*wp-block-cover)/i',
+				'$1 has-mobile-image',
+				$block_content,
+				1
+			);
+		}
+	}
+
+	// Find the desktop image and add class to it
+	// Look for img tag with wp-block-cover__image-background class (desktop image)
+	if ( strpos( $block_content, 'mosne-hero-desktop-image' ) === false ) {
+		// First, add class to existing desktop image
+		$block_content = preg_replace(
+			'/(<img[^>]*class=")([^"]*wp-block-cover__image-background)([^"]*")/i',
+			'$1mosne-hero-desktop-image $2$3',
+			$block_content,
+			1
+		);
+	}
+
+	// Add mobile image after desktop image (only if not already added)
+	if ( strpos( $block_content, 'mosne-hero-mobile-image' ) === false ) {
+		// Try to insert after the desktop image
+		$pattern = '/(<img[^>]*class="[^"]*mosne-hero-desktop-image[^"]*"[^>]*>)/i';
+		if ( preg_match( $pattern, $block_content ) ) {
+			$block_content = preg_replace( $pattern, '$1' . $mobile_image_html, $block_content, 1 );
+		} else {
+			// Fallback: insert after any wp-block-cover__image-background
+			$pattern = '/(<img[^>]*class="[^"]*wp-block-cover__image-background[^"]*"[^>]*>)/i';
+			$block_content = preg_replace( $pattern, '$1' . $mobile_image_html, $block_content, 1 );
+		}
+	}
 
 	return $block_content;
 }
-add_filter( 'render_block', 'create_block_mosne_hero_render_block', 10, 2 );
+add_filter( 'render_block_core/cover', 'mosne_hero_render_cover_block', 10, 2 );

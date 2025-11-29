@@ -1,12 +1,12 @@
 {
 	"name": "mosne-hero",
 	"version": "0.1.0",
-	"description": "Example block scaffolded with Create Block tool.",
+	"description": "Extends core/cover block with separate mobile and desktop background images.",
 	"author": "The WordPress Contributors",
 	"license": "GPL-2.0-or-later",
 	"main": "build/index.js",
 	"scripts": {
-		"build": "wp-scripts build --blocks-manifest",
+		"build": "wp-scripts build",
 		"format": "wp-scripts format",
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js",
