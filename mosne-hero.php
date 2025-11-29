@@ -266,16 +266,16 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 		);
 	}
 
-	// Add mobile image after desktop image (only if not already added)
+	// Add mobile image BEFORE desktop image (only if not already added)
 	if ( strpos( $block_content, 'mosne-hero-mobile-image' ) === false ) {
-		// Try to insert after the desktop image
+		// Try to insert before the desktop image
 		$pattern = '/(<img[^>]*class="[^"]*mosne-hero-desktop-image[^"]*"[^>]*>)/i';
 		if ( preg_match( $pattern, $block_content ) ) {
-			$block_content = preg_replace( $pattern, '$1' . $mobile_image_html, $block_content, 1 );
+			$block_content = preg_replace( $pattern, $mobile_image_html . '$1', $block_content, 1 );
 		} else {
-			// Fallback: insert after any wp-block-cover__image-background
+			// Fallback: insert before any wp-block-cover__image-background
 			$pattern = '/(<img[^>]*class="[^"]*wp-block-cover__image-background[^"]*"[^>]*>)/i';
-			$block_content = preg_replace( $pattern, '$1' . $mobile_image_html, $block_content, 1 );
+			$block_content = preg_replace( $pattern, $mobile_image_html . '$1', $block_content, 1 );
 		}
 	}
 
