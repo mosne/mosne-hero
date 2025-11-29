@@ -110,7 +110,7 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 			mobileImageId = 0,
 			mobileImageUrl = "",
 			mobileFocalPoint,
-			mobileImageSize = "full",
+			mobileImageSize = "large",
 			mobileImageAlt = "",
 		} = attributes;
 
@@ -165,7 +165,7 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 		// Update mobile image URL when image data or size changes
 		useEffect(() => {
 			if (mobileImage) {
-				const url = getImageUrlForSize(mobileImage, mobileImageSize || "full");
+				const url = getImageUrlForSize(mobileImage, mobileImageSize || "large");
 				if (url) {
 					setAttributes({ mobileImageUrl: url });
 				}
@@ -178,14 +178,14 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 		// The mobileImage will be undefined/null if the media doesn't exist
 
 		const onSelectMobileImage = (image) => {
-			const size = mobileImageSize || "full";
+			const size = mobileImageSize || "large";
 			const url = getImageUrlForSize(image, size);
 			setAttributes({
 				variation: attributes.variation || "mosne-hero-cover",
 				mobileImageId: image.id,
 				mobileImageUrl: url,
 				mobileFocalPoint: mobileFocalPoint || { x: 0.5, y: 0.5 },
-				mobileImageSize: mobileImageSize || "full",
+				mobileImageSize: mobileImageSize || "large",
 				mobileImageAlt: mobileImageAlt || image.alt || "",
 			});
 		};
@@ -252,7 +252,7 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 													)}
 													<SelectControl
 														label={__("Image Size", "mosne-hero")}
-														value={mobileImageSize || "full"}
+														value={mobileImageSize || "large"}
 														options={imageSizeOptions}
 														onChange={(value) => {
 															setAttributes({ mobileImageSize: value });

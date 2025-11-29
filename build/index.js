@@ -139,7 +139,7 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
       mobileImageId = 0,
       mobileImageUrl = "",
       mobileFocalPoint,
-      mobileImageSize = "full",
+      mobileImageSize = "large",
       mobileImageAlt = ""
     } = attributes;
 
@@ -197,7 +197,7 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
     // Update mobile image URL when image data or size changes
     (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_8__.useEffect)(() => {
       if (mobileImage) {
-        const url = getImageUrlForSize(mobileImage, mobileImageSize || "full");
+        const url = getImageUrlForSize(mobileImage, mobileImageSize || "large");
         if (url) {
           setAttributes({
             mobileImageUrl: url
@@ -212,7 +212,7 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
     // The mobileImage will be undefined/null if the media doesn't exist
 
     const onSelectMobileImage = image => {
-      const size = mobileImageSize || "full";
+      const size = mobileImageSize || "large";
       const url = getImageUrlForSize(image, size);
       setAttributes({
         variation: attributes.variation || "mosne-hero-cover",
@@ -222,7 +222,7 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
           x: 0.5,
           y: 0.5
         },
-        mobileImageSize: mobileImageSize || "full",
+        mobileImageSize: mobileImageSize || "large",
         mobileImageAlt: mobileImageAlt || image.alt || ""
       });
     };
@@ -294,7 +294,7 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
                       }
                     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.SelectControl, {
                       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Image Size", "mosne-hero"),
-                      value: mobileImageSize || "full",
+                      value: mobileImageSize || "large",
                       options: imageSizeOptions,
                       onChange: value => {
                         setAttributes({
