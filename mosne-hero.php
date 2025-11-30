@@ -408,7 +408,7 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 					}
 					
 					// Create picture element with sources
-					$picture_html = '<picture>';
+					$picture_html = '<picture class="wp-block-cover__image-background">';
 					
 					// Mobile source (max-width: 782px)
 					if ( $mobile_srcset ) {
