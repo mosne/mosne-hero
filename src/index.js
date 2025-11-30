@@ -164,7 +164,7 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 				mobileImageId: 0,
 				mobileImageUrl: "",
 				mobileFocalPoint: undefined,
-				mobileImageSize: undefined,
+				// Keep mobileImageSize when removing image - it will use desktop image with mobile size
 				mobileImageAlt: "",
 			});
 		};
@@ -194,6 +194,40 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 						title={__("Mobile Image", "mosne-hero")}
 						initialOpen={true}
 					>
+						{/* Mobile Image Size Selector - Always visible */}
+						<SelectControl
+							label={__("Mobile Image Size", "mosne-hero")}
+							value={mobileImageSize || "large"}
+							options={imageSizeOptions}
+							onChange={(value) => {
+								setAttributes({ mobileImageSize: value });
+								// Update URL if mobile image exists
+								if (mobileImage) {
+									const url = getImageUrlForSize(mobileImage, value);
+									if (url) {
+										setAttributes({ mobileImageUrl: url });
+									}
+								}
+							}}
+							help={__(
+								"Choose the image size for mobile view. If no mobile image is selected, the desktop image will be used with this size.",
+								"mosne-hero",
+							)}
+						/>
+
+						{/* High Fetch Priority Toggle - Always visible */}
+						<ToggleControl
+							label={__("High Fetch Priority", "mosne-hero")}
+							checked={highFetchPriority}
+							onChange={(value) =>
+								setAttributes({ highFetchPriority: value })
+							}
+							help={__(
+								"Prioritize loading of both desktop and mobile images. Use for above-the-fold hero images.",
+								"mosne-hero",
+							)}
+						/>
+
 						<MediaUploadCheck>
 							<MediaUpload
 								onSelect={onSelectMobileImage}
@@ -229,23 +263,6 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 															}}
 														/>
 													)}
-													<SelectControl
-														label={__("Image Size", "mosne-hero")}
-														value={mobileImageSize || "large"}
-														options={imageSizeOptions}
-														onChange={(value) => {
-															setAttributes({ mobileImageSize: value });
-															if (mobileImage) {
-																const url = getImageUrlForSize(
-																	mobileImage,
-																	value,
-																);
-																if (url) {
-																	setAttributes({ mobileImageUrl: url });
-																}
-															}
-														}}
-													/>
 													<TextControl
 														label={__("Alt Text", "mosne-hero")}
 														value={mobileImageAlt || ""}
@@ -254,17 +271,6 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 														}
 														help={__(
 															"Describe the purpose of the image. Leave empty to use the image's default alt text.",
-															"mosne-hero",
-														)}
-													/>
-													<ToggleControl
-														label={__("High Fetch Priority", "mosne-hero")}
-														checked={highFetchPriority}
-														onChange={(value) =>
-															setAttributes({ highFetchPriority: value })
-														}
-														help={__(
-															"Prioritize loading of both desktop and mobile images. Use for above-the-fold hero images.",
 															"mosne-hero",
 														)}
 													/>

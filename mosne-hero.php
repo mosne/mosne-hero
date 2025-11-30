@@ -294,14 +294,24 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 	$mobile_image_alt   = $attributes['mobileImageAlt'] ?? '';
 	$high_fetch_priority = $attributes['highFetchPriority'] ?? false;
 
-	// If no mobile image, return as-is
-	if ( ! $mobile_image_id ) {
-		return $block_content;
-	}
-
 	// Get desktop image ID
 	// WordPress cover block stores the background image ID in 'id' attribute
 	$desktop_image_id = $attributes['id'] ?? 0;
+
+	// If no mobile image and no desktop image, return as-is
+	if ( ! $mobile_image_id && ! $desktop_image_id ) {
+		return $block_content;
+	}
+
+	// If no mobile image but we have desktop image, use desktop image with mobile size
+	$use_desktop_for_mobile = ( ! $mobile_image_id && $desktop_image_id > 0 );
+	if ( $use_desktop_for_mobile ) {
+		$mobile_image_id = $desktop_image_id;
+		// Use desktop focal point if mobile focal point not set
+		if ( ! isset( $attributes['mobileFocalPoint'] ) ) {
+			$mobile_focal_point = $attributes['focalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
+		}
+	}
 
 	// Prepare mobile image data
 	$object_position = '50% 50%';
@@ -312,15 +322,21 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 	// Get alt text
 	$alt_text = $mobile_image_alt;
 	if ( empty( $alt_text ) ) {
-		$alt_text = get_post_meta( $mobile_image_id, '_wp_attachment_image_alt', true );
+		if ( $mobile_image_id > 0 ) {
+			$alt_text = get_post_meta( $mobile_image_id, '_wp_attachment_image_alt', true );
+		} elseif ( $desktop_image_id > 0 ) {
+			$alt_text = get_post_meta( $desktop_image_id, '_wp_attachment_image_alt', true );
+		}
 	}
 	if ( empty( $alt_text ) ) {
 		$alt_text = '';
 	}
 
 	// Get mobile image srcset and src for picture element
-	$mobile_srcset = wp_get_attachment_image_srcset( $mobile_image_id, $mobile_image_size );
-	$mobile_image_src = wp_get_attachment_image_src( $mobile_image_id, $mobile_image_size );
+	// If using desktop for mobile, use desktop image ID with mobile size
+	$actual_mobile_image_id = $use_desktop_for_mobile ? $desktop_image_id : $mobile_image_id;
+	$mobile_srcset = wp_get_attachment_image_srcset( $actual_mobile_image_id, $mobile_image_size );
+	$mobile_image_src = wp_get_attachment_image_src( $actual_mobile_image_id, $mobile_image_size );
 	
 	// Get mobile image size width for sizes attribute
 	$mobile_image_width = 0;
@@ -374,9 +390,9 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 
 	$block_content = $tag_processor->get_updated_html();
 
-	// If we have mobile image, try to replace desktop image with picture element
+	// If we have mobile image (or using desktop for mobile), try to replace desktop image with picture element
 	// Even if desktop_image_id is 0, we can still find the desktop image in the HTML
-	if ( $mobile_image_id > 0 ) {
+	if ( $mobile_image_id > 0 && $desktop_image_id > 0 ) {
 		// Find the desktop image using WP_HTML_Tag_Processor
 		$tag_processor = new WP_HTML_Tag_Processor( $block_content );
 		$desktop_image_found = false;

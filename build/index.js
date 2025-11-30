@@ -367,7 +367,7 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_2
         mobileImageId: 0,
         mobileImageUrl: "",
         mobileFocalPoint: undefined,
-        mobileImageSize: undefined,
+        // Keep mobileImageSize when removing image - it will use desktop image with mobile size
         mobileImageAlt: ""
       });
     };
@@ -391,10 +391,36 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_2
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(BlockEdit, {
         ...props
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.InspectorControls, {
-        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody, {
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody, {
           title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Mobile Image", "mosne-hero"),
           initialOpen: true,
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUploadCheck, {
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.SelectControl, {
+            label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Mobile Image Size", "mosne-hero"),
+            value: mobileImageSize || "large",
+            options: imageSizeOptions,
+            onChange: value => {
+              setAttributes({
+                mobileImageSize: value
+              });
+              // Update URL if mobile image exists
+              if (mobileImage) {
+                const url = getImageUrlForSize(mobileImage, value);
+                if (url) {
+                  setAttributes({
+                    mobileImageUrl: url
+                  });
+                }
+              }
+            },
+            help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Choose the image size for mobile view. If no mobile image is selected, the desktop image will be used with this size.", "mosne-hero")
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.ToggleControl, {
+            label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("High Fetch Priority", "mosne-hero"),
+            checked: highFetchPriority,
+            onChange: value => setAttributes({
+              highFetchPriority: value
+            }),
+            help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Prioritize loading of both desktop and mobile images. Use for above-the-fold hero images.", "mosne-hero")
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUploadCheck, {
             children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUpload, {
               onSelect: onSelectMobileImage,
               allowedTypes: ["image"],
@@ -419,23 +445,6 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_2
                           });
                         }
                       }
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.SelectControl, {
-                      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Image Size", "mosne-hero"),
-                      value: mobileImageSize || "large",
-                      options: imageSizeOptions,
-                      onChange: value => {
-                        setAttributes({
-                          mobileImageSize: value
-                        });
-                        if (mobileImage) {
-                          const url = getImageUrlForSize(mobileImage, value);
-                          if (url) {
-                            setAttributes({
-                              mobileImageUrl: url
-                            });
-                          }
-                        }
-                      }
                     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.TextControl, {
                       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Alt Text", "mosne-hero"),
                       value: mobileImageAlt || "",
@@ -443,13 +452,6 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_2
                         mobileImageAlt: value
                       }),
                       help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Describe the purpose of the image. Leave empty to use the image's default alt text.", "mosne-hero")
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.ToggleControl, {
-                      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("High Fetch Priority", "mosne-hero"),
-                      checked: highFetchPriority,
-                      onChange: value => setAttributes({
-                        highFetchPriority: value
-                      }),
-                      help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Prioritize loading of both desktop and mobile images. Use for above-the-fold hero images.", "mosne-hero")
                     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Button, {
                       onClick: onRemoveMobileImage,
                       variant: "secondary",
@@ -468,7 +470,7 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_2
                 });
               }
             })
-          })
+          })]
         })
       }, "mosne-hero-mobile-image")]
     });
