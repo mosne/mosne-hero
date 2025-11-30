@@ -164,40 +164,6 @@ function mosne_hero_enqueue_editor_assets() {
 }
 add_action( 'enqueue_block_editor_assets', 'mosne_hero_enqueue_editor_assets' );
 
-/**
- * Enqueue block assets for editor iframe (styles).
- *
- * @return void
- */
-function mosne_hero_enqueue_block_assets() {
-	$asset_file = include plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
-
-	// Enqueue styles for editor iframe
-	wp_enqueue_style(
-		'mosne-hero-style',
-		plugin_dir_url( __FILE__ ) . 'build/style-index.css',
-		array(),
-		$asset_file['version']
-	);
-}
-add_action( 'enqueue_block_assets', 'mosne_hero_enqueue_block_assets' );
-
-/**
- * Enqueue frontend assets.
- *
- * @return void
- */
-function mosne_hero_enqueue_frontend_assets() {
-	$asset_file = include plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
-
-	wp_enqueue_style(
-		'mosne-hero-style',
-		plugin_dir_url( __FILE__ ) . 'build/style-index.css',
-		array(),
-		$asset_file['version']
-	);
-}
-add_action( 'wp_enqueue_scripts', 'mosne_hero_enqueue_frontend_assets' );
 
 // add image size for mobile image 414x736 and retina 828x1472
 add_image_size( 'mosne-hero-mobile', 414, 736, true );
