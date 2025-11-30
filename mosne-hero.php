@@ -164,6 +164,31 @@ function mosne_hero_enqueue_editor_assets() {
 }
 add_action( 'enqueue_block_editor_assets', 'mosne_hero_enqueue_editor_assets' );
 
+/**
+ * Enqueue frontend script for focal point switching.
+ *
+ * @return void
+ */
+function mosne_hero_enqueue_frontend_script() {
+	// Only enqueue on singular pages where blocks might be used
+	if ( ! is_singular() ) {
+		return;
+	}
+
+	$frontend_file = plugin_dir_path( __FILE__ ) . 'build/frontend.js';
+	if ( ! file_exists( $frontend_file ) ) {
+		return;
+	}
+
+	wp_enqueue_script(
+		'mosne-hero-frontend',
+		plugin_dir_url( __FILE__ ) . 'build/frontend.js',
+		array(),
+		filemtime( $frontend_file ),
+		true
+	);
+}
+add_action( 'wp_enqueue_scripts', 'mosne_hero_enqueue_frontend_script' );
 
 // add image size for mobile image 414x736 and retina 828x1472
 add_image_size( 'mosne-hero-mobile', 414, 736, true );
@@ -314,9 +339,16 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 	}
 
 	// Prepare mobile image data
-	$object_position = '50% 50%';
+	$mobile_object_position = '50% 50%';
 	if ( isset( $mobile_focal_point['x'] ) && isset( $mobile_focal_point['y'] ) ) {
-		$object_position = ( $mobile_focal_point['x'] * 100 ) . '% ' . ( $mobile_focal_point['y'] * 100 ) . '%';
+		$mobile_object_position = ( $mobile_focal_point['x'] * 100 ) . '% ' . ( $mobile_focal_point['y'] * 100 ) . '%';
+	}
+
+	// Prepare desktop image focal point
+	$desktop_focal_point = $attributes['focalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
+	$desktop_object_position = '50% 50%';
+	if ( isset( $desktop_focal_point['x'] ) && isset( $desktop_focal_point['y'] ) ) {
+		$desktop_object_position = ( $desktop_focal_point['x'] * 100 ) . '% ' . ( $desktop_focal_point['y'] * 100 ) . '%';
 	}
 
 	// Get alt text
@@ -487,7 +519,75 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 					}
 					
 					// Fallback img (desktop image)
-					$picture_html .= $desktop_image_html;
+					// Add data attributes for object position switching
+					$desktop_img_with_attrs = $desktop_image_html;
+					
+					// Extract existing style attribute if present
+					$existing_style = '';
+					if ( preg_match( '/style="([^"]*)"/i', $desktop_img_with_attrs, $style_match ) ) {
+						$existing_style = $style_match[1];
+					}
+					
+					// Add or update data-object-position for mobile
+					if ( strpos( $desktop_img_with_attrs, 'data-object-position' ) === false ) {
+						$desktop_img_with_attrs = preg_replace(
+							'/(<img[^>]*)(>)/i',
+							'$1 data-object-position="' . esc_attr( $mobile_object_position ) . '"$2',
+							$desktop_img_with_attrs,
+							1
+						);
+					} else {
+						$desktop_img_with_attrs = preg_replace(
+							'/data-object-position="[^"]*"/i',
+							'data-object-position="' . esc_attr( $mobile_object_position ) . '"',
+							$desktop_img_with_attrs,
+							1
+						);
+					}
+					
+					// Add data-desktop-object-position
+					if ( strpos( $desktop_img_with_attrs, 'data-desktop-object-position' ) === false ) {
+						$desktop_img_with_attrs = preg_replace(
+							'/(<img[^>]*)(>)/i',
+							'$1 data-desktop-object-position="' . esc_attr( $desktop_object_position ) . '"$2',
+							$desktop_img_with_attrs,
+							1
+						);
+					} else {
+						$desktop_img_with_attrs = preg_replace(
+							'/data-desktop-object-position="[^"]*"/i',
+							'data-desktop-object-position="' . esc_attr( $desktop_object_position ) . '"',
+							$desktop_img_with_attrs,
+							1
+						);
+					}
+					
+					// Set initial style with mobile position (will be updated by JS)
+					$style_attr = 'style="object-position:' . esc_attr( $mobile_object_position ) . ';';
+					if ( $existing_style ) {
+						// Preserve existing style but update object-position
+						$existing_style = preg_replace( '/object-position:[^;]*;?/i', '', $existing_style );
+						$style_attr .= ' ' . esc_attr( trim( $existing_style ) );
+					}
+					$style_attr .= '"';
+					
+					if ( strpos( $desktop_img_with_attrs, 'style=' ) === false ) {
+						$desktop_img_with_attrs = preg_replace(
+							'/(<img[^>]*)(>)/i',
+							'$1 ' . $style_attr . '$2',
+							$desktop_img_with_attrs,
+							1
+						);
+					} else {
+						$desktop_img_with_attrs = preg_replace(
+							'/style="[^"]*"/i',
+							$style_attr,
+							$desktop_img_with_attrs,
+							1
+						);
+					}
+					
+					$picture_html .= $desktop_img_with_attrs;
 					$picture_html .= '</picture>';
 
 					// Replace desktop image with picture element
@@ -523,8 +623,9 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 				'class'           => 'mosne-hero-mobile-image wp-block-cover__image-background wp-image-' . $mobile_image_id . ' size-' . $mobile_image_size,
 				'data-object-fit' => 'cover',
 				'alt'             => $alt_text,
-				'data-object-position' => $object_position,
-				'style'           => 'object-position:' . esc_attr( $object_position ) . ';',
+				'data-object-position' => $mobile_object_position,
+				'data-desktop-object-position' => $desktop_object_position,
+				'style'           => 'object-position:' . esc_attr( $mobile_object_position ) . ';',
 			);
 
 			if ( $high_fetch_priority ) {
