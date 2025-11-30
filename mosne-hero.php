@@ -337,6 +337,40 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 	// Get mobile image srcset and src for picture element
 	$mobile_srcset = wp_get_attachment_image_srcset( $mobile_image_id, $mobile_image_size );
 	$mobile_image_src = wp_get_attachment_image_src( $mobile_image_id, $mobile_image_size );
+	
+	// Get mobile image size width for sizes attribute
+	$mobile_image_width = 0;
+	if ( function_exists( 'wp_get_registered_image_subsizes' ) ) {
+		$size_info = wp_get_registered_image_subsizes();
+		if ( isset( $size_info[ $mobile_image_size ] ) && isset( $size_info[ $mobile_image_size ]['width'] ) ) {
+			$mobile_image_width = $size_info[ $mobile_image_size ]['width'];
+		}
+	}
+	// Fallback: get width from image src if available
+	if ( ! $mobile_image_width && $mobile_image_src && isset( $mobile_image_src[1] ) ) {
+		$mobile_image_width = $mobile_image_src[1];
+	}
+	// Fallback: use standard WordPress sizes
+	if ( ! $mobile_image_width ) {
+		switch ( $mobile_image_size ) {
+			case 'thumbnail':
+				$mobile_image_width = (int) get_option( 'thumbnail_size_w', 150 );
+				break;
+			case 'medium':
+				$mobile_image_width = (int) get_option( 'medium_size_w', 300 );
+				break;
+			case 'medium_large':
+				$mobile_image_width = (int) get_option( 'medium_large_size_w', 768 );
+				break;
+			case 'large':
+				$mobile_image_width = (int) get_option( 'large_size_w', 1024 );
+				break;
+			case 'full':
+				// For full size, use a large breakpoint
+				$mobile_image_width = 1920;
+				break;
+		}
+	}
 
 	// Use WP_HTML_Tag_Processor for safe HTML manipulation (WordPress 6.2+)
 	if ( ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
@@ -407,19 +441,49 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 						}
 					}
 					
+					// Get desktop image width for sizes attribute
+					$desktop_image_width = 0;
+					// Try to get width from img tag
+					preg_match( '/width="(\d+)"/i', $desktop_image_html, $width_match );
+					if ( ! empty( $width_match[1] ) ) {
+						$desktop_image_width = (int) $width_match[1];
+					}
+					// Fallback: get from attachment if we have ID
+					if ( ! $desktop_image_width && $desktop_image_id > 0 ) {
+						$desktop_image_data = wp_get_attachment_image_src( $desktop_image_id, 'full' );
+						if ( $desktop_image_data && isset( $desktop_image_data[1] ) ) {
+							$desktop_image_width = $desktop_image_data[1];
+						}
+					}
+					// Fallback: use large size default
+					if ( ! $desktop_image_width ) {
+						$desktop_image_width = (int) get_option( 'large_size_w', 1024 );
+					}
+					
+					// Build sizes attributes based on image widths
+					$mobile_sizes = '100vw';
+					if ( $mobile_image_width > 0 ) {
+						$mobile_sizes = sprintf( '(max-width: %dpx) 100vw, %dpx', $mobile_image_width, $mobile_image_width );
+					}
+					
+					$desktop_sizes = '100vw';
+					if ( $desktop_image_width > 0 ) {
+						$desktop_sizes = sprintf( '(max-width: %dpx) 100vw, %dpx', $desktop_image_width, $desktop_image_width );
+					}
+					
 					// Create picture element with sources
 					$picture_html = '<picture class="wp-block-cover__image-background">';
 					
 					// Mobile source (max-width: 782px)
 					if ( $mobile_srcset ) {
-						$picture_html .= '<source media="(max-width: 782px)" srcset="' . esc_attr( $mobile_srcset ) . '" sizes="100vw">';
+						$picture_html .= '<source media="(max-width: 782px)" srcset="' . esc_attr( $mobile_srcset ) . '" sizes="' . esc_attr( $mobile_sizes ) . '">';
 					} elseif ( $mobile_image_src && isset( $mobile_image_src[0] ) ) {
-						$picture_html .= '<source media="(max-width: 782px)" srcset="' . esc_url( $mobile_image_src[0] ) . '">';
+						$picture_html .= '<source media="(max-width: 782px)" srcset="' . esc_url( $mobile_image_src[0] ) . '" sizes="' . esc_attr( $mobile_sizes ) . '">';
 					}
 					
 					// Desktop source (min-width: 783px)
 					if ( $desktop_srcset ) {
-						$picture_html .= '<source media="(min-width: 783px)" srcset="' . esc_attr( $desktop_srcset ) . '" sizes="100vw">';
+						$picture_html .= '<source media="(min-width: 783px)" srcset="' . esc_attr( $desktop_srcset ) . '" sizes="' . esc_attr( $desktop_sizes ) . '">';
 					}
 					
 					// Fallback img (desktop image)
