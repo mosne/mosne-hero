@@ -292,11 +292,6 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 	if ( ! isset( $attributes['variation'] ) || 'mosne-hero-cover' !== $attributes['variation'] ) {
 		return $block_content;
 	}
-	
-	// Debug: Log that filter is being called
-	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		error_log( 'Mosne Hero: Filter called for cover block with variation' );
-	}
 
 	// Get mobile image attributes
 	$mobile_image_id   = $attributes['mobileImageId'] ?? 0;
@@ -313,11 +308,6 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 	// Get desktop image ID
 	// WordPress cover block stores the background image ID in 'id' attribute
 	$desktop_image_id = $attributes['id'] ?? 0;
-	
-	// Debug: Log to see what we have
-	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		error_log( 'Mosne Hero Debug: desktop_image_id=' . $desktop_image_id . ', mobile_image_id=' . $mobile_image_id );
-	}
 
 	// Prepare mobile image data
 	$object_position = '50% 50%';
@@ -492,19 +482,9 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 
 					// Replace desktop image with picture element
 					$block_content = str_replace( $matches[0], $picture_html, $block_content );
-					
-					// Debug
-					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-						error_log( 'Mosne Hero: Picture element created and replaced' );
-					}
 				}
 				break;
 			}
-		}
-		
-		// Debug if desktop image not found
-		if ( ! $desktop_image_found && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'Mosne Hero: Desktop image not found in HTML. Block content: ' . substr( $block_content, 0, 500 ) );
 		}
 	} else {
 		// Fallback: use WP_HTML_Tag_Processor for simple modifications

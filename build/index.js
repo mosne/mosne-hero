@@ -82,11 +82,6 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
       clientId
     } = props;
 
-    // Debug: Log all blocks to see if HOC is running
-    if (typeof console !== "undefined" && console.log) {
-      console.log("HOC running for block:", name, attributes);
-    }
-
     // Ensure BlockEdit is valid
     if (!BlockEdit || typeof BlockEdit !== "function") {
       return null;
@@ -99,41 +94,16 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
       });
     }
 
-    // Debug: Log cover block attributes
-    if (typeof console !== "undefined" && console.log) {
-      console.log("Cover block detected:", {
-        name,
-        variation: attributes.variation,
-        allAttributes: attributes
-      });
-    }
-
     // Check if this block uses our variation
     // The variation attribute should be set when the variation is selected
     const hasVariationAttr = attributes.variation === "mosne-hero-cover";
 
-    // Debug: Log variation check
-    if (typeof console !== "undefined" && console.log) {
-      console.log("Variation check:", {
-        hasVariationAttr,
-        variation: attributes.variation
-      });
-    }
-
     // Show panel only if variation attribute is set
     // This ensures it only appears for blocks created from our variation
     if (!hasVariationAttr) {
-      if (typeof console !== "undefined" && console.log) {
-        console.log("Panel not showing - variation attribute not set");
-      }
       return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(BlockEdit, {
         ...props
       });
-    }
-
-    // Debug: Panel should show
-    if (typeof console !== "undefined" && console.log) {
-      console.log("Panel SHOULD be showing now!");
     }
     const {
       mobileImageId = 0,
@@ -164,7 +134,7 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
 
     // Get image size options from WordPress (dynamically from registered sizes)
     // Fallback to default sizes if not available
-    const imageSizeOptions = typeof mosneHeroData !== 'undefined' && mosneHeroData.imageSizes ? mosneHeroData.imageSizes : [{
+    const imageSizeOptions = typeof mosneHeroData !== "undefined" && mosneHeroData.imageSizes ? mosneHeroData.imageSizes : [{
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Full Size", "mosne-hero"),
       value: "full"
     }, {
@@ -243,24 +213,15 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
 
     // Ensure all required components are available
     if (!_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.PanelBody || !_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.MediaUpload || !_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.MediaUploadCheck || !_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.SelectControl || !_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.Button) {
-      console.log("Missing components!", {
-        PanelBody: _wordpress_components__WEBPACK_IMPORTED_MODULE_5__.PanelBody,
-        MediaUpload: _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.MediaUpload,
-        MediaUploadCheck: _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.MediaUploadCheck,
-        SelectControl: _wordpress_components__WEBPACK_IMPORTED_MODULE_5__.SelectControl,
-        Button: _wordpress_components__WEBPACK_IMPORTED_MODULE_5__.Button
-      });
       return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(BlockEdit, {
         ...props
       });
     }
     if (!_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.InspectorControls) {
-      console.log("InspectorControls is not available!");
       return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(BlockEdit, {
         ...props
       });
     }
-    console.log("About to render InspectorControls");
     return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.Fragment, {
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(BlockEdit, {
         ...props

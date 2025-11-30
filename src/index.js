@@ -20,10 +20,7 @@ import {
 } from "@wordpress/components";
 
 // MediaUpload and MediaUploadCheck need to be imported from block-editor
-import {
-	MediaUpload,
-	MediaUploadCheck,
-} from "@wordpress/block-editor";
+import { MediaUpload, MediaUploadCheck } from "@wordpress/block-editor";
 
 // Import FocalPointPicker - check if it exists at runtime
 import * as wpComponents from "@wordpress/components";
@@ -57,11 +54,6 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 	return (props) => {
 		const { name, attributes, setAttributes, clientId } = props;
 
-		// Debug: Log all blocks to see if HOC is running
-		if (typeof console !== "undefined" && console.log) {
-			console.log("HOC running for block:", name, attributes);
-		}
-
 		// Ensure BlockEdit is valid
 		if (!BlockEdit || typeof BlockEdit !== "function") {
 			return null;
@@ -72,39 +64,14 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 			return <BlockEdit {...props} />;
 		}
 
-		// Debug: Log cover block attributes
-		if (typeof console !== "undefined" && console.log) {
-			console.log("Cover block detected:", {
-				name,
-				variation: attributes.variation,
-				allAttributes: attributes,
-			});
-		}
-
 		// Check if this block uses our variation
 		// The variation attribute should be set when the variation is selected
 		const hasVariationAttr = attributes.variation === "mosne-hero-cover";
-		
-		// Debug: Log variation check
-		if (typeof console !== "undefined" && console.log) {
-			console.log("Variation check:", {
-				hasVariationAttr,
-				variation: attributes.variation,
-			});
-		}
 
 		// Show panel only if variation attribute is set
 		// This ensures it only appears for blocks created from our variation
 		if (!hasVariationAttr) {
-			if (typeof console !== "undefined" && console.log) {
-				console.log("Panel not showing - variation attribute not set");
-			}
 			return <BlockEdit {...props} />;
-		}
-
-		// Debug: Panel should show
-		if (typeof console !== "undefined" && console.log) {
-			console.log("Panel SHOULD be showing now!");
 		}
 
 		const {
@@ -139,15 +106,16 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 
 		// Get image size options from WordPress (dynamically from registered sizes)
 		// Fallback to default sizes if not available
-		const imageSizeOptions = (typeof mosneHeroData !== 'undefined' && mosneHeroData.imageSizes) 
-			? mosneHeroData.imageSizes 
-			: [
-				{ label: __("Full Size", "mosne-hero"), value: "full" },
-				{ label: __("Large", "mosne-hero"), value: "large" },
-				{ label: __("Medium Large", "mosne-hero"), value: "medium_large" },
-				{ label: __("Medium", "mosne-hero"), value: "medium" },
-				{ label: __("Thumbnail", "mosne-hero"), value: "thumbnail" },
-			];
+		const imageSizeOptions =
+			typeof mosneHeroData !== "undefined" && mosneHeroData.imageSizes
+				? mosneHeroData.imageSizes
+				: [
+						{ label: __("Full Size", "mosne-hero"), value: "full" },
+						{ label: __("Large", "mosne-hero"), value: "large" },
+						{ label: __("Medium Large", "mosne-hero"), value: "medium_large" },
+						{ label: __("Medium", "mosne-hero"), value: "medium" },
+						{ label: __("Thumbnail", "mosne-hero"), value: "thumbnail" },
+				  ];
 
 		// Helper function to get image URL for a specific size
 		const getImageUrlForSize = (image, size) => {
@@ -207,17 +175,19 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 		const mobileFocalPointValue = mobileFocalPoint || { x: 0.5, y: 0.5 };
 
 		// Ensure all required components are available
-		if (!PanelBody || !MediaUpload || !MediaUploadCheck || !SelectControl || !Button) {
-			console.log("Missing components!", { PanelBody, MediaUpload, MediaUploadCheck, SelectControl, Button });
+		if (
+			!PanelBody ||
+			!MediaUpload ||
+			!MediaUploadCheck ||
+			!SelectControl ||
+			!Button
+		) {
 			return <BlockEdit {...props} />;
 		}
 
 		if (!InspectorControls) {
-			console.log("InspectorControls is not available!");
 			return <BlockEdit {...props} />;
 		}
-
-		console.log("About to render InspectorControls");
 
 		return (
 			<>
@@ -236,8 +206,11 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 									if (typeof open !== "function") {
 										return null;
 									}
-									const hasImage = mobileImageUrl && typeof mobileImageUrl === "string" && !isBlobURL(mobileImageUrl);
-									
+									const hasImage =
+										mobileImageUrl &&
+										typeof mobileImageUrl === "string" &&
+										!isBlobURL(mobileImageUrl);
+
 									return (
 										<div>
 											{hasImage ? (
@@ -248,7 +221,12 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 															url={mobileImageUrl}
 															value={mobileFocalPointValue}
 															onChange={(value) => {
-																if (value && typeof value === "object" && typeof value.x === "number" && typeof value.y === "number") {
+																if (
+																	value &&
+																	typeof value === "object" &&
+																	typeof value.x === "number" &&
+																	typeof value.y === "number"
+																) {
 																	setAttributes({ mobileFocalPoint: value });
 																}
 															}}
@@ -261,7 +239,10 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 														onChange={(value) => {
 															setAttributes({ mobileImageSize: value });
 															if (mobileImage) {
-																const url = getImageUrlForSize(mobileImage, value);
+																const url = getImageUrlForSize(
+																	mobileImage,
+																	value,
+																);
 																if (url) {
 																	setAttributes({ mobileImageUrl: url });
 																}
@@ -276,7 +257,7 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 														}
 														help={__(
 															"Describe the purpose of the image. Leave empty to use the image's default alt text.",
-															"mosne-hero"
+															"mosne-hero",
 														)}
 													/>
 													<ToggleControl
@@ -287,7 +268,7 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 														}
 														help={__(
 															"Prioritize loading of both desktop and mobile images. Use for above-the-fold hero images.",
-															"mosne-hero"
+															"mosne-hero",
 														)}
 													/>
 													<Button
@@ -324,6 +305,3 @@ addFilter(
 	withMobileImageControls,
 	20, // Higher priority to ensure it runs
 );
-
-
-
