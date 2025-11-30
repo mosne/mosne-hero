@@ -64,6 +64,79 @@ function mosne_hero_register_cover_attributes( $metadata ) {
 add_filter( 'block_type_metadata', 'mosne_hero_register_cover_attributes' );
 
 /**
+ * Get all registered image sizes for JavaScript.
+ *
+ * @return array Array of image sizes with labels and values.
+ */
+function mosne_hero_get_image_sizes() {
+	// Get standard WordPress image sizes
+	$standard_sizes = array( 'thumbnail', 'medium', 'medium_large', 'large', 'full' );
+	
+	// Get all registered image sizes
+	$all_sizes = get_intermediate_image_sizes();
+	
+	// Merge with full size
+	$all_sizes[] = 'full';
+	
+	// Remove duplicates and sort
+	$all_sizes = array_unique( $all_sizes );
+	
+	// Build options array
+	$image_size_options = array();
+	
+	// Get registered image sizes info (WordPress 5.3+)
+	$size_info = function_exists( 'wp_get_registered_image_subsizes' ) 
+		? wp_get_registered_image_subsizes() 
+		: array();
+	
+	foreach ( $all_sizes as $size ) {
+		// Build label
+		$label = ucwords( str_replace( array( '-', '_' ), ' ', $size ) );
+		
+		// If it's a standard size, use WordPress default labels
+		if ( 'full' === $size ) {
+			$label = __( 'Full Size', 'mosne-hero' );
+		} elseif ( 'large' === $size ) {
+			$label = __( 'Large', 'mosne-hero' );
+		} elseif ( 'medium_large' === $size ) {
+			$label = __( 'Medium Large', 'mosne-hero' );
+		} elseif ( 'medium' === $size ) {
+			$label = __( 'Medium', 'mosne-hero' );
+		} elseif ( 'thumbnail' === $size ) {
+			$label = __( 'Thumbnail', 'mosne-hero' );
+		} else {
+			// For custom sizes, add dimensions if available
+			if ( ! empty( $size_info ) && isset( $size_info[ $size ] ) ) {
+				$width = $size_info[ $size ]['width'] ?? 0;
+				$height = $size_info[ $size ]['height'] ?? 0;
+				if ( $width > 0 && $height > 0 ) {
+					$label = sprintf( '%s (%dx%d)', $label, $width, $height );
+				}
+			}
+		}
+		
+		$image_size_options[] = array(
+			'label' => $label,
+			'value' => $size,
+		);
+	}
+	
+	// Sort by label
+	usort( $image_size_options, function( $a, $b ) {
+		// Put 'full' first, then sort alphabetically
+		if ( 'full' === $a['value'] ) {
+			return -1;
+		}
+		if ( 'full' === $b['value'] ) {
+			return 1;
+		}
+		return strcmp( $a['label'], $b['label'] );
+	} );
+	
+	return $image_size_options;
+}
+
+/**
  * Enqueue block editor assets.
  *
  * @return void
@@ -79,6 +152,15 @@ function mosne_hero_enqueue_assets() {
 		true
 	);
 
+	// Localize script with image sizes
+	wp_localize_script(
+		'mosne-hero-editor',
+		'mosneHeroData',
+		array(
+			'imageSizes' => mosne_hero_get_image_sizes(),
+		)
+	);
+
 	wp_enqueue_style(
 		'mosne-hero-style',
 		plugin_dir_url( __FILE__ ) . 'build/style-index.css',
@@ -88,6 +170,11 @@ function mosne_hero_enqueue_assets() {
 }
 add_action( 'enqueue_block_editor_assets', 'mosne_hero_enqueue_assets' );
 add_action( 'wp_enqueue_scripts', 'mosne_hero_enqueue_assets' );
+
+// add image size for mobile image 414x736 and retina 828x1472
+add_image_size( 'mosne-hero-mobile', 414, 736, true );
+add_image_size( 'mosne-hero-mobile-retina', 828, 1472, true );
+
 
 /**
  * Register meta fields for mobile image.

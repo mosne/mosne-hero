@@ -162,9 +162,9 @@ const withMobileImageControls = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3
       }
     }, [mobileImageId]);
 
-    // Build image size options
-    // Using standard WordPress image sizes
-    const imageSizeOptions = [{
+    // Get image size options from WordPress (dynamically from registered sizes)
+    // Fallback to default sizes if not available
+    const imageSizeOptions = typeof mosneHeroData !== 'undefined' && mosneHeroData.imageSizes ? mosneHeroData.imageSizes : [{
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_6__.__)("Full Size", "mosne-hero"),
       value: "full"
     }, {

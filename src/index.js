@@ -137,15 +137,17 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 			[mobileImageId],
 		);
 
-		// Build image size options
-		// Using standard WordPress image sizes
-		const imageSizeOptions = [
-			{ label: __("Full Size", "mosne-hero"), value: "full" },
-			{ label: __("Large", "mosne-hero"), value: "large" },
-			{ label: __("Medium Large", "mosne-hero"), value: "medium_large" },
-			{ label: __("Medium", "mosne-hero"), value: "medium" },
-			{ label: __("Thumbnail", "mosne-hero"), value: "thumbnail" },
-		];
+		// Get image size options from WordPress (dynamically from registered sizes)
+		// Fallback to default sizes if not available
+		const imageSizeOptions = (typeof mosneHeroData !== 'undefined' && mosneHeroData.imageSizes) 
+			? mosneHeroData.imageSizes 
+			: [
+				{ label: __("Full Size", "mosne-hero"), value: "full" },
+				{ label: __("Large", "mosne-hero"), value: "large" },
+				{ label: __("Medium Large", "mosne-hero"), value: "medium_large" },
+				{ label: __("Medium", "mosne-hero"), value: "medium" },
+				{ label: __("Thumbnail", "mosne-hero"), value: "thumbnail" },
+			];
 
 		// Helper function to get image URL for a specific size
 		const getImageUrlForSize = (image, size) => {
@@ -322,3 +324,6 @@ addFilter(
 	withMobileImageControls,
 	20, // Higher priority to ensure it runs
 );
+
+
+
