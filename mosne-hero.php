@@ -205,6 +205,11 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 	if ( ! isset( $attributes['variation'] ) || 'mosne-hero-cover' !== $attributes['variation'] ) {
 		return $block_content;
 	}
+	
+	// Debug: Log that filter is being called
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( 'Mosne Hero: Filter called for cover block with variation' );
+	}
 
 	// Get mobile image attributes
 	$mobile_image_id   = $attributes['mobileImageId'] ?? 0;
@@ -218,106 +223,194 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 		return $block_content;
 	}
 
-	// If we have an ID, use wp_get_attachment_image to get the full WordPress image markup
-	if ( $mobile_image_id ) {
-		// Calculate object-position from focal point
-		$object_position = '50% 50%';
-		if ( isset( $mobile_focal_point['x'] ) && isset( $mobile_focal_point['y'] ) ) {
-			$object_position = ( $mobile_focal_point['x'] * 100 ) . '% ' . ( $mobile_focal_point['y'] * 100 ) . '%';
-		}
+	// Get desktop image ID
+	// WordPress cover block stores the background image ID in 'id' attribute
+	$desktop_image_id = $attributes['id'] ?? 0;
+	
+	// Debug: Log to see what we have
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( 'Mosne Hero Debug: desktop_image_id=' . $desktop_image_id . ', mobile_image_id=' . $mobile_image_id );
+	}
 
-		// Get alt text - use custom alt if provided, otherwise use attachment alt
-		$alt_text = $mobile_image_alt;
-		if ( empty( $alt_text ) ) {
-			$alt_text = get_post_meta( $mobile_image_id, '_wp_attachment_image_alt', true );
-		}
-		if ( empty( $alt_text ) ) {
-			$alt_text = '';
-		}
+	// Prepare mobile image data
+	$object_position = '50% 50%';
+	if ( isset( $mobile_focal_point['x'] ) && isset( $mobile_focal_point['y'] ) ) {
+		$object_position = ( $mobile_focal_point['x'] * 100 ) . '% ' . ( $mobile_focal_point['y'] * 100 ) . '%';
+	}
 
-		// Build attributes array for mobile image
-		$mobile_image_attrs = array(
-			'class'           => 'mosne-hero-mobile-image wp-block-cover__image-background wp-image-' . $mobile_image_id . ' size-' . $mobile_image_size,
-			'data-object-fit' => 'cover',
-			'alt'             => $alt_text,
-			'data-object-position' => $object_position,
-			'style'           => 'object-position:' . esc_attr( $object_position ) . ';',
-		);
+	// Get alt text
+	$alt_text = $mobile_image_alt;
+	if ( empty( $alt_text ) ) {
+		$alt_text = get_post_meta( $mobile_image_id, '_wp_attachment_image_alt', true );
+	}
+	if ( empty( $alt_text ) ) {
+		$alt_text = '';
+	}
 
-		// Add fetchpriority if enabled
-		if ( $high_fetch_priority ) {
-			$mobile_image_attrs['fetchpriority'] = 'high';
-		}
+	// Get mobile image srcset and src for picture element
+	$mobile_srcset = wp_get_attachment_image_srcset( $mobile_image_id, $mobile_image_size );
+	$mobile_image_src = wp_get_attachment_image_src( $mobile_image_id, $mobile_image_size );
 
-		// Get the image with all WordPress attributes (srcset, sizes, etc.)
-		$mobile_image_html = wp_get_attachment_image(
-			$mobile_image_id,
-			$mobile_image_size,
-			false,
-			$mobile_image_attrs
-		);
-	} else {
+	// Use WP_HTML_Tag_Processor for safe HTML manipulation (WordPress 6.2+)
+	if ( ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
 		return $block_content;
 	}
 
+	$tag_processor = new WP_HTML_Tag_Processor( $block_content );
+
 	// Add class to cover block wrapper
-	// Handle different HTML structures WordPress might generate
-	if ( strpos( $block_content, 'has-mobile-image' ) === false ) {
-		// Try to add class to the main wp-block-cover div
-		$block_content = preg_replace(
-			'/(<div[^>]*class=")([^"]*wp-block-cover[^"]*)([^"]*")/i',
-			'$1$2 has-mobile-image$3',
-			$block_content,
-			1
-		);
+	while ( $tag_processor->next_tag( array( 'tag_name' => 'DIV' ) ) ) {
+		$class = $tag_processor->get_attribute( 'class' );
+		if ( $class && strpos( $class, 'wp-block-cover' ) !== false && strpos( $class, 'has-mobile-image' ) === false ) {
+			$tag_processor->add_class( 'has-mobile-image' );
+			break;
+		}
+	}
+
+	$block_content = $tag_processor->get_updated_html();
+
+	// If we have mobile image, try to replace desktop image with picture element
+	// Even if desktop_image_id is 0, we can still find the desktop image in the HTML
+	if ( $mobile_image_id > 0 ) {
+		// Find the desktop image using WP_HTML_Tag_Processor
+		$tag_processor = new WP_HTML_Tag_Processor( $block_content );
+		$desktop_image_found = false;
+
+		// Try to find any img tag in the cover block (desktop image)
+		// WordPress cover block may use different class names
+		while ( $tag_processor->next_tag( array( 'tag_name' => 'IMG' ) ) ) {
+			$class = $tag_processor->get_attribute( 'class' );
+			// Check for wp-block-cover__image-background or wp-image- classes
+			if ( $class && ( strpos( $class, 'wp-block-cover__image-background' ) !== false || strpos( $class, 'wp-image-' ) !== false ) ) {
+				$desktop_image_found = true;
+				
+				// Extract the full img tag from original content
+				// Try multiple patterns to find the image
+				$pattern = '/<img[^>]*class="[^"]*' . preg_quote( str_replace( ' ', '.*', $class ), '/' ) . '[^"]*"[^"]*>/i';
+				preg_match( $pattern, $block_content, $matches );
+				
+				// Fallback: try simpler pattern
+				if ( empty( $matches[0] ) ) {
+					preg_match( '/<img[^>]*class="[^"]*wp-block-cover[^"]*"[^"]*>/i', $block_content, $matches );
+				}
+				
+				// Another fallback: just get the first img tag
+				if ( empty( $matches[0] ) ) {
+					preg_match( '/<img[^>]*>/i', $block_content, $matches );
+				}
+				
+				if ( ! empty( $matches[0] ) ) {
+					$desktop_image_html = $matches[0];
+					
+					// Add fetchpriority if enabled
+					if ( $high_fetch_priority && strpos( $desktop_image_html, 'fetchpriority' ) === false ) {
+						$desktop_image_html = preg_replace( '/(<img[^>]*)(>)/i', '$1 fetchpriority="high"$2', $desktop_image_html, 1 );
+					}
+					
+					// Get desktop srcset
+					$desktop_srcset = $tag_processor->get_attribute( 'srcset' );
+					if ( ! $desktop_srcset && $desktop_image_id > 0 ) {
+						$desktop_srcset = wp_get_attachment_image_srcset( $desktop_image_id );
+					}
+					// If still no srcset, try to extract from the img tag
+					if ( ! $desktop_srcset ) {
+						preg_match( '/srcset="([^"]*)"/i', $desktop_image_html, $srcset_match );
+						if ( ! empty( $srcset_match[1] ) ) {
+							$desktop_srcset = $srcset_match[1];
+						}
+					}
+					
+					// Create picture element with sources
+					$picture_html = '<picture>';
+					
+					// Mobile source (max-width: 782px)
+					if ( $mobile_srcset ) {
+						$picture_html .= '<source media="(max-width: 782px)" srcset="' . esc_attr( $mobile_srcset ) . '" sizes="100vw">';
+					} elseif ( $mobile_image_src && isset( $mobile_image_src[0] ) ) {
+						$picture_html .= '<source media="(max-width: 782px)" srcset="' . esc_url( $mobile_image_src[0] ) . '">';
+					}
+					
+					// Desktop source (min-width: 783px)
+					if ( $desktop_srcset ) {
+						$picture_html .= '<source media="(min-width: 783px)" srcset="' . esc_attr( $desktop_srcset ) . '" sizes="100vw">';
+					}
+					
+					// Fallback img (desktop image)
+					$picture_html .= $desktop_image_html;
+					$picture_html .= '</picture>';
+
+					// Replace desktop image with picture element
+					$block_content = str_replace( $matches[0], $picture_html, $block_content );
+					
+					// Debug
+					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+						error_log( 'Mosne Hero: Picture element created and replaced' );
+					}
+				}
+				break;
+			}
+		}
 		
-		// If that didn't work, try adding it to any div with wp-block-cover
-		if ( strpos( $block_content, 'has-mobile-image' ) === false ) {
-			$block_content = preg_replace(
-				'/(<div[^>]*class="[^"]*wp-block-cover)/i',
-				'$1 has-mobile-image',
-				$block_content,
-				1
-			);
+		// Debug if desktop image not found
+		if ( ! $desktop_image_found && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'Mosne Hero: Desktop image not found in HTML. Block content: ' . substr( $block_content, 0, 500 ) );
 		}
-	}
-
-	// Find the desktop image and add class to it
-	// Look for img tag with wp-block-cover__image-background class (desktop image)
-	if ( strpos( $block_content, 'mosne-hero-desktop-image' ) === false ) {
-		// First, add class to existing desktop image
-		$block_content = preg_replace(
-			'/(<img[^>]*class=")([^"]*wp-block-cover__image-background)([^"]*")/i',
-			'$1mosne-hero-desktop-image $2$3',
-			$block_content,
-			1
-		);
-	}
-
-	// Add fetchpriority to desktop image if enabled
-	if ( $high_fetch_priority ) {
-		// Check if desktop image already has fetchpriority
-		if ( strpos( $block_content, 'fetchpriority="high"' ) === false && strpos( $block_content, "fetchpriority='high'" ) === false ) {
-			// Add fetchpriority to desktop image
-			$block_content = preg_replace(
-				'/(<img[^>]*class="[^"]*mosne-hero-desktop-image[^"]*"[^>]*)(>)/i',
-				'$1 fetchpriority="high"$2',
-				$block_content,
-				1
-			);
+	} else {
+		// Fallback: use WP_HTML_Tag_Processor for simple modifications
+		$tag_processor = new WP_HTML_Tag_Processor( $block_content );
+		
+		// Add class to desktop image and fetchpriority
+		while ( $tag_processor->next_tag( array( 'tag_name' => 'IMG' ) ) ) {
+			$class = $tag_processor->get_attribute( 'class' );
+			if ( $class && strpos( $class, 'wp-block-cover__image-background' ) !== false ) {
+				if ( strpos( $class, 'mosne-hero-desktop-image' ) === false ) {
+					$tag_processor->add_class( 'mosne-hero-desktop-image' );
+				}
+				
+				// Add fetchpriority if enabled
+				if ( $high_fetch_priority && ! $tag_processor->get_attribute( 'fetchpriority' ) ) {
+					$tag_processor->set_attribute( 'fetchpriority', 'high' );
+				}
+			}
 		}
-	}
+		
+		$block_content = $tag_processor->get_updated_html();
 
-	// Add mobile image BEFORE desktop image (only if not already added)
-	if ( strpos( $block_content, 'mosne-hero-mobile-image' ) === false ) {
-		// Try to insert before the desktop image
-		$pattern = '/(<img[^>]*class="[^"]*mosne-hero-desktop-image[^"]*"[^>]*>)/i';
-		if ( preg_match( $pattern, $block_content ) ) {
-			$block_content = preg_replace( $pattern, $mobile_image_html . '$1', $block_content, 1 );
-		} else {
-			// Fallback: insert before any wp-block-cover__image-background
-			$pattern = '/(<img[^>]*class="[^"]*wp-block-cover__image-background[^"]*"[^>]*>)/i';
-			$block_content = preg_replace( $pattern, $mobile_image_html . '$1', $block_content, 1 );
+		// Add mobile image if it exists (fallback when only mobile image, no desktop)
+		if ( $mobile_image_id > 0 && $desktop_image_id === 0 ) {
+			$mobile_image_attrs = array(
+				'class'           => 'mosne-hero-mobile-image wp-block-cover__image-background wp-image-' . $mobile_image_id . ' size-' . $mobile_image_size,
+				'data-object-fit' => 'cover',
+				'alt'             => $alt_text,
+				'data-object-position' => $object_position,
+				'style'           => 'object-position:' . esc_attr( $object_position ) . ';',
+			);
+
+			if ( $high_fetch_priority ) {
+				$mobile_image_attrs['fetchpriority'] = 'high';
+			}
+
+			$mobile_image_html = wp_get_attachment_image(
+				$mobile_image_id,
+				$mobile_image_size,
+				false,
+				$mobile_image_attrs
+			);
+
+			// Insert mobile image before desktop image
+			$tag_processor = new WP_HTML_Tag_Processor( $block_content );
+			while ( $tag_processor->next_tag( array( 'tag_name' => 'IMG' ) ) ) {
+				$class = $tag_processor->get_attribute( 'class' );
+				if ( $class && ( strpos( $class, 'mosne-hero-desktop-image' ) !== false || strpos( $class, 'wp-block-cover__image-background' ) !== false ) ) {
+					// Find position and insert mobile image before
+					preg_match( '/<img[^>]*class="[^"]*' . preg_quote( str_replace( ' ', '.*', $class ), '/' ) . '[^"]*"[^"]*>/i', $block_content, $img_matches, PREG_OFFSET_CAPTURE );
+					if ( ! empty( $img_matches[0] ) ) {
+						$insert_pos = $img_matches[0][1];
+						$block_content = substr_replace( $block_content, $mobile_image_html, $insert_pos, 0 );
+					}
+					break;
+				}
+			}
 		}
 	}
 
