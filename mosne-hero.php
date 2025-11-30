@@ -57,6 +57,11 @@ function mosne_hero_register_cover_attributes( $metadata ) {
 			'type' => 'boolean',
 			'default' => false,
 		);
+
+		$metadata['attributes']['fetchPreload'] = array(
+			'type' => 'boolean',
+			'default' => false,
+		);
 	}
 
 	return $metadata;
@@ -113,11 +118,11 @@ function mosne_hero_register_meta() {
 
 		register_post_meta(
 			$post_type,
-			'_mosne_hero_mobile_image_url',
+			'_mosne_hero_desktop_image_id',
 			array(
 				'show_in_rest' => true,
 				'single'       => true,
-				'type'         => 'string',
+				'type'         => 'integer',
 				'auth_callback' => function() {
 					return current_user_can( 'edit_posts' );
 				},
@@ -172,14 +177,18 @@ function mosne_hero_save_meta( $post_id, $post ) {
 				if ( isset( $attrs['mobileImageId'] ) && $attrs['mobileImageId'] > 0 ) {
 					$mobile_id = absint( $attrs['mobileImageId'] );
 					update_post_meta( $post_id, '_mosne_hero_mobile_image_id', $mobile_id );
-
-					if ( isset( $attrs['mobileImageUrl'] ) && ! empty( $attrs['mobileImageUrl'] ) ) {
-						update_post_meta( $post_id, '_mosne_hero_mobile_image_url', esc_url_raw( $attrs['mobileImageUrl'] ) );
-					}
 				} else {
 					// Remove meta if image is removed
 					delete_post_meta( $post_id, '_mosne_hero_mobile_image_id' );
-					delete_post_meta( $post_id, '_mosne_hero_mobile_image_url' );
+				}
+
+				// Save desktop image ID
+				if ( isset( $attrs['id'] ) && $attrs['id'] > 0 ) {
+					$desktop_id = absint( $attrs['id'] );
+					update_post_meta( $post_id, '_mosne_hero_desktop_image_id', $desktop_id );
+				} else {
+					// Remove meta if image is removed
+					delete_post_meta( $post_id, '_mosne_hero_desktop_image_id' );
 				}
 			}
 		}
@@ -212,6 +221,7 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 	$mobile_image_size  = $attributes['mobileImageSize'] ?? 'large';
 	$mobile_image_alt   = $attributes['mobileImageAlt'] ?? '';
 	$high_fetch_priority = $attributes['highFetchPriority'] ?? false;
+	$fetch_preload       = $attributes['fetchPreload'] ?? false;
 
 	// If no mobile image, return as-is
 	if ( ! $mobile_image_id ) {
@@ -324,3 +334,76 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 	return $block_content;
 }
 add_filter( 'render_block_core/cover', 'mosne_hero_render_cover_block', 10, 2 );
+
+/**
+ * Add preload links for desktop and mobile images.
+ *
+ * @return void
+ */
+function mosne_hero_add_preload_links() {
+	// Only process on singular pages
+	if ( ! is_singular() ) {
+		return;
+	}
+
+	global $post;
+	if ( ! $post || ! isset( $post->post_content ) ) {
+		return;
+	}
+
+	// Parse blocks from post content
+	$blocks = parse_blocks( $post->post_content );
+	if ( empty( $blocks ) ) {
+		return;
+	}
+
+	// Find core/cover blocks with our variation and preload enabled
+	foreach ( $blocks as $block ) {
+		if ( 'core/cover' !== ( $block['blockName'] ?? '' ) ) {
+			continue;
+		}
+
+		$attributes = $block['attrs'] ?? array();
+
+		// Check if this is our variation with preload enabled
+		if ( ! isset( $attributes['variation'] ) || 'mosne-hero-cover' !== $attributes['variation'] ) {
+			continue;
+		}
+
+		$fetch_preload = $attributes['fetchPreload'] ?? false;
+		if ( ! $fetch_preload ) {
+			continue;
+		}
+
+		$desktop_image_id = $attributes['id'] ?? 0;
+		$mobile_image_id  = $attributes['mobileImageId'] ?? 0;
+		$mobile_image_size = $attributes['mobileImageSize'] ?? 'large';
+
+		// Preload desktop image
+		if ( $desktop_image_id > 0 ) {
+			$desktop_image = wp_get_attachment_image_src( $desktop_image_id, 'full' );
+			if ( $desktop_image && isset( $desktop_image[0] ) ) {
+				$srcset = wp_get_attachment_image_srcset( $desktop_image_id );
+				echo '<link rel="preload" as="image" href="' . esc_url( $desktop_image[0] ) . '"';
+				if ( $srcset ) {
+					echo ' imagesrcset="' . esc_attr( $srcset ) . '" imagesizes="100vw"';
+				}
+				echo ' media="(min-width: 783px)">' . "\n";
+			}
+		}
+
+		// Preload mobile image
+		if ( $mobile_image_id > 0 ) {
+			$mobile_image = wp_get_attachment_image_src( $mobile_image_id, $mobile_image_size );
+			if ( $mobile_image && isset( $mobile_image[0] ) ) {
+				$srcset = wp_get_attachment_image_srcset( $mobile_image_id, $mobile_image_size );
+				echo '<link rel="preload" as="image" href="' . esc_url( $mobile_image[0] ) . '"';
+				if ( $srcset ) {
+					echo ' imagesrcset="' . esc_attr( $srcset ) . '" imagesizes="100vw"';
+				}
+				echo ' media="(max-width: 782px)">' . "\n";
+			}
+		}
+	}
+}
+add_action( 'wp_head', 'mosne_hero_add_preload_links', 1 );

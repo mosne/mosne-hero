@@ -114,6 +114,7 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 			mobileImageSize = "large",
 			mobileImageAlt = "",
 			highFetchPriority = false,
+			fetchPreload = false,
 		} = attributes;
 
 		// Get mobile image data from media library
@@ -285,6 +286,17 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 														}
 														help={__(
 															"Prioritize loading of both desktop and mobile images. Use for above-the-fold hero images.",
+															"mosne-hero"
+														)}
+													/>
+													<ToggleControl
+														label={__("Fetch Preload", "mosne-hero")}
+														checked={fetchPreload}
+														onChange={(value) =>
+															setAttributes({ fetchPreload: value })
+														}
+														help={__(
+															"Preload both desktop and mobile images for faster loading. Use for critical above-the-fold hero images.",
 															"mosne-hero"
 														)}
 													/>
