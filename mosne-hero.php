@@ -323,6 +323,16 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 	// WordPress cover block stores the background image ID in 'id' attribute
 	$desktop_image_id = $attributes['id'] ?? 0;
 
+	// Check if useFeaturedImage is true and get post thumbnail to use as desktop image
+	$use_featured_image = $attributes['useFeaturedImage'] ?? false;
+	if ( $use_featured_image ) {
+		// Get post ID - try multiple methods
+		$thumbnail_id = get_post_thumbnail_id( get_the_ID() );
+		if ( $thumbnail_id > 0 ) {
+			$desktop_image_id = $thumbnail_id;
+		}
+	}
+
 	// If no mobile image and no desktop image, return as-is
 	if ( ! $mobile_image_id && ! $desktop_image_id ) {
 		return $block_content;
@@ -424,7 +434,8 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 
 	// If we have mobile image (or using desktop for mobile), try to replace desktop image with picture element
 	// Even if desktop_image_id is 0, we can still find the desktop image in the HTML
-	if ( $mobile_image_id > 0 && $desktop_image_id > 0 ) {
+	// Create picture element if: we have desktop image AND (we have mobile image OR we're using desktop for mobile)
+	if ( $desktop_image_id > 0 && ( $mobile_image_id > 0 || $use_desktop_for_mobile ) ) {
 		// Find the desktop image using WP_HTML_Tag_Processor
 		$tag_processor = new WP_HTML_Tag_Processor( $block_content );
 		$desktop_image_found = false;
