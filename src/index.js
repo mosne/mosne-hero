@@ -101,18 +101,39 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 			[mobileImageId],
 		);
 
-		// Get image size options from WordPress (dynamically from registered sizes)
-		// Fallback to default sizes if not available
-		const imageSizeOptions =
-			typeof mosneHeroData !== "undefined" && mosneHeroData.imageSizes
-				? mosneHeroData.imageSizes
-				: [
-						{ label: __("Full Size", "mosne-hero"), value: "full" },
-						{ label: __("Large", "mosne-hero"), value: "large" },
-						{ label: __("Medium Large", "mosne-hero"), value: "medium_large" },
-						{ label: __("Medium", "mosne-hero"), value: "medium" },
-						{ label: __("Thumbnail", "mosne-hero"), value: "thumbnail" },
-				  ];
+		// Get image size options from WordPress block editor settings
+		const imageSizeOptions = useSelect((select) => {
+			const settings = select("core/block-editor").getSettings();
+			const imageSizes = settings?.imageSizes || [];
+
+			// Format image sizes for SelectControl
+			const formattedSizes = imageSizes.map((size) => ({
+				label: size.name || size.slug,
+				value: size.slug,
+			}));
+
+			// Add 'full' size option if not already present
+			const hasFull = formattedSizes.some((size) => size.value === "full");
+			if (!hasFull) {
+				formattedSizes.unshift({
+					label: __("Full Size", "mosne-hero"),
+					value: "full",
+				});
+			}
+
+			// Fallback to default sizes if no sizes available
+			if (formattedSizes.length === 0) {
+				return [
+					{ label: __("Full Size", "mosne-hero"), value: "full" },
+					{ label: __("Large", "mosne-hero"), value: "large" },
+					{ label: __("Medium Large", "mosne-hero"), value: "medium_large" },
+					{ label: __("Medium", "mosne-hero"), value: "medium" },
+					{ label: __("Thumbnail", "mosne-hero"), value: "thumbnail" },
+				];
+			}
+
+			return formattedSizes;
+		}, []);
 
 		// Helper function to get image URL for a specific size
 		const getImageUrlForSize = (image, size) => {
@@ -219,9 +240,7 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 						<ToggleControl
 							label={__("High Fetch Priority", "mosne-hero")}
 							checked={highFetchPriority}
-							onChange={(value) =>
-								setAttributes({ highFetchPriority: value })
-							}
+							onChange={(value) => setAttributes({ highFetchPriority: value })}
 							help={__(
 								"Prioritize loading of both desktop and mobile images. Use for above-the-fold hero images.",
 								"mosne-hero",

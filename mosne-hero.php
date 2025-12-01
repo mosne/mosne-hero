@@ -64,81 +64,36 @@ function mosne_hero_register_cover_attributes( $metadata ) {
 add_filter( 'block_type_metadata', 'mosne_hero_register_cover_attributes' );
 
 /**
- * Get all registered image sizes for JavaScript.
+ * Add custom image sizes to block editor settings.
  *
- * @return array Array of image sizes with labels and values.
+ * @since 0.1.1
+ *
+ * @param array $editor_settings Block editor settings.
+ * @return array Modified editor settings.
  */
-function mosne_hero_get_image_sizes() {
-	// Get standard WordPress image sizes
-	$standard_sizes = array( 'thumbnail', 'medium', 'medium_large', 'large', 'full' );
-	
-	// Get all registered image sizes
-	$all_sizes = get_intermediate_image_sizes();
-	
-	// Merge with full size
-	$all_sizes[] = 'full';
-	
-	// Remove duplicates and sort
-	$all_sizes = array_unique( $all_sizes );
-	
-	// Build options array
-	$image_size_options = array();
-	
-	// Get registered image sizes info (WordPress 5.3+)
-	$size_info = function_exists( 'wp_get_registered_image_subsizes' ) 
-		? wp_get_registered_image_subsizes() 
-		: array();
-	
-	foreach ( $all_sizes as $size ) {
-		// Build label
-		$label = ucwords( str_replace( array( '-', '_' ), ' ', $size ) );
-		
-		// If it's a standard size, use WordPress default labels
-		if ( 'full' === $size ) {
-			$label = __( 'Full Size', 'mosne-hero' );
-		} elseif ( 'large' === $size ) {
-			$label = __( 'Large', 'mosne-hero' );
-		} elseif ( 'medium_large' === $size ) {
-			$label = __( 'Medium Large', 'mosne-hero' );
-		} elseif ( 'medium' === $size ) {
-			$label = __( 'Medium', 'mosne-hero' );
-		} elseif ( 'thumbnail' === $size ) {
-			$label = __( 'Thumbnail', 'mosne-hero' );
-		} else {
-			// For custom sizes, add dimensions if available
-			if ( ! empty( $size_info ) && isset( $size_info[ $size ] ) ) {
-				$width = $size_info[ $size ]['width'] ?? 0;
-				$height = $size_info[ $size ]['height'] ?? 0;
-				if ( $width > 0 && $height > 0 ) {
-					$label = sprintf( '%s (%dx%d)', $label, $width, $height );
-				}
-			}
-		}
-		
-		$image_size_options[] = array(
-			'label' => $label,
-			'value' => $size,
-		);
+function mosne_hero_add_image_sizes_to_editor( $editor_settings ) {
+	// Ensure imageSizes array exists
+	if ( ! isset( $editor_settings['imageSizes'] ) ) {
+		$editor_settings['imageSizes'] = array();
 	}
-	
-	// Sort by label
-	usort( $image_size_options, function( $a, $b ) {
-		// Put 'full' first, then sort alphabetically
-		if ( 'full' === $a['value'] ) {
-			return -1;
-		}
-		if ( 'full' === $b['value'] ) {
-			return 1;
-		}
-		return strcmp( $a['label'], $b['label'] );
-	} );
-	
-	return $image_size_options;
+
+	// Add custom hero mobile sizes
+	$editor_settings['imageSizes'][] = array(
+		'slug'   => 'mosne-hero-mobile-retina',
+		'name'   => __( 'Hero Mobile', 'mosne-hero' ),
+		'width'  => 414,
+		'height' => 736,
+	);
+
+	return $editor_settings;
 }
+add_filter( 'block_editor_settings_all', 'mosne_hero_add_image_sizes_to_editor', 10, 1 );
 
 /**
  * Enqueue block editor assets (scripts only).
  * Styles are handled via import in JavaScript for proper iframe loading.
+ *
+ * @since 0.1.1
  *
  * @return void
  */
@@ -153,14 +108,8 @@ function mosne_hero_enqueue_editor_assets() {
 		true
 	);
 
-	// Localize script with image sizes
-	wp_localize_script(
-		'mosne-hero-editor',
-		'mosneHeroData',
-		array(
-			'imageSizes' => mosne_hero_get_image_sizes(),
-		)
-	);
+	// Note: Image sizes are now retrieved from WordPress block editor settings
+	// using wp.data.select('core/block-editor').getSettings().imageSizes in JavaScript
 }
 add_action( 'enqueue_block_editor_assets', 'mosne_hero_enqueue_editor_assets' );
 
