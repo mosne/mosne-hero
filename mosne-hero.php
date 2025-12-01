@@ -196,134 +196,316 @@ add_image_size( 'mosne-hero-mobile-retina', 828, 1472, true );
 
 
 /**
- * Filter cover block output to add mobile image.
+ * Get desktop image ID from block attributes, including featured image support.
  *
- * @param string $block_content The rendered block content.
- * @param array  $parsed_block  The parsed block array.
- * @return string Filtered block content.
+ * @since 0.1.1
+ *
+ * @param array $attributes Block attributes.
+ * @return int Desktop image ID, or 0 if not found.
  */
-function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
-	// Check if this is a core/cover block with our variation
-	if ( 'core/cover' !== ( $parsed_block['blockName'] ?? '' ) ) {
-		return $block_content;
-	}
+function mosne_hero_get_desktop_image_id( $attributes ) {
+	$desktop_image_id = isset( $attributes['id'] ) ? absint( $attributes['id'] ) : 0;
 
-	$attributes = $parsed_block['attrs'] ?? array();
-
-	if ( ! isset( $attributes['variation'] ) || 'mosne-hero-cover' !== $attributes['variation'] ) {
-		return $block_content;
-	}
-
-	// Get mobile image attributes
-	$mobile_image_id   = $attributes['mobileImageId'] ?? 0;
-	$mobile_focal_point = $attributes['mobileFocalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
-	$mobile_image_size  = $attributes['mobileImageSize'] ?? 'large';
-	$mobile_image_alt   = $attributes['mobileImageAlt'] ?? '';
-	$high_fetch_priority = $attributes['highFetchPriority'] ?? false;
-
-	// Get desktop image ID
-	// WordPress cover block stores the background image ID in 'id' attribute
-	$desktop_image_id = $attributes['id'] ?? 0;
-
-	// Check if useFeaturedImage is true and get post thumbnail to use as desktop image
-	$use_featured_image = $attributes['useFeaturedImage'] ?? false;
-	if ( $use_featured_image ) {
-		// Get post ID - try multiple methods
-		$thumbnail_id = get_post_thumbnail_id( get_the_ID() );
-		if ( $thumbnail_id > 0 ) {
-			$desktop_image_id = $thumbnail_id;
+	// Use featured image if useFeaturedImage is enabled and no desktop image is set.
+	if ( ! $desktop_image_id && ! empty( $attributes['useFeaturedImage'] ) ) {
+		$post_id = get_the_ID();
+		if ( $post_id ) {
+			$thumbnail_id = get_post_thumbnail_id( $post_id );
+			if ( $thumbnail_id > 0 ) {
+				$desktop_image_id = $thumbnail_id;
+			}
 		}
 	}
 
-	// If no mobile image and no desktop image, return as-is
-	if ( ! $mobile_image_id && ! $desktop_image_id ) {
-		return $block_content;
+	return $desktop_image_id;
+}
+
+/**
+ * Convert focal point array to CSS object-position value.
+ *
+ * @since 0.1.1
+ *
+ * @param array $focal_point Focal point with 'x' and 'y' keys (0-1 range).
+ * @return string CSS object-position value (e.g., "50% 50%").
+ */
+function mosne_hero_focal_point_to_position( $focal_point ) {
+	if ( ! is_array( $focal_point ) || ! isset( $focal_point['x'] ) || ! isset( $focal_point['y'] ) ) {
+		return '50% 50%';
 	}
 
-	// If no mobile image but we have desktop image, use desktop image with mobile size
-	$use_desktop_for_mobile = ( ! $mobile_image_id && $desktop_image_id > 0 );
-	if ( $use_desktop_for_mobile ) {
-		$mobile_image_id = $desktop_image_id;
-		// Use desktop focal point if mobile focal point not set
-		if ( ! isset( $attributes['mobileFocalPoint'] ) ) {
-			$mobile_focal_point = $attributes['focalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
+	$x = max( 0, min( 1, (float) $focal_point['x'] ) );
+	$y = max( 0, min( 1, (float) $focal_point['y'] ) );
+
+	return ( $x * 100 ) . '% ' . ( $y * 100 ) . '%';
+}
+
+/**
+ * Get image alt text, with fallback to attachment meta.
+ *
+ * @since 0.1.1
+ *
+ * @param string $custom_alt     Custom alt text from attributes.
+ * @param int    $mobile_image_id Mobile image ID.
+ * @param int    $desktop_image_id Desktop image ID.
+ * @return string Alt text, empty string if none found.
+ */
+function mosne_hero_get_alt_text( $custom_alt, $mobile_image_id, $desktop_image_id ) {
+	if ( ! empty( $custom_alt ) ) {
+		return sanitize_text_field( $custom_alt );
+	}
+
+	// Try mobile image first, then desktop.
+	$image_id = $mobile_image_id > 0 ? $mobile_image_id : $desktop_image_id;
+	if ( $image_id > 0 ) {
+		$alt = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
+		if ( ! empty( $alt ) ) {
+			return sanitize_text_field( $alt );
 		}
 	}
 
-	// Prepare mobile image data
-	$mobile_object_position = '50% 50%';
-	if ( isset( $mobile_focal_point['x'] ) && isset( $mobile_focal_point['y'] ) ) {
-		$mobile_object_position = ( $mobile_focal_point['x'] * 100 ) . '% ' . ( $mobile_focal_point['y'] * 100 ) . '%';
-	}
+	return '';
+}
 
-	// Prepare desktop image focal point
-	$desktop_focal_point = $attributes['focalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
-	$desktop_object_position = '50% 50%';
-	if ( isset( $desktop_focal_point['x'] ) && isset( $desktop_focal_point['y'] ) ) {
-		$desktop_object_position = ( $desktop_focal_point['x'] * 100 ) . '% ' . ( $desktop_focal_point['y'] * 100 ) . '%';
-	}
-
-	// Get alt text
-	$alt_text = $mobile_image_alt;
-	if ( empty( $alt_text ) ) {
-		if ( $mobile_image_id > 0 ) {
-			$alt_text = get_post_meta( $mobile_image_id, '_wp_attachment_image_alt', true );
-		} elseif ( $desktop_image_id > 0 ) {
-			$alt_text = get_post_meta( $desktop_image_id, '_wp_attachment_image_alt', true );
-		}
-	}
-	if ( empty( $alt_text ) ) {
-		$alt_text = '';
-	}
-
-	// Get mobile image srcset and src for picture element
-	// If using desktop for mobile, use desktop image ID with mobile size
-	$actual_mobile_image_id = $use_desktop_for_mobile ? $desktop_image_id : $mobile_image_id;
-	$mobile_srcset = wp_get_attachment_image_srcset( $actual_mobile_image_id, $mobile_image_size );
-	$mobile_image_src = wp_get_attachment_image_src( $actual_mobile_image_id, $mobile_image_size );
-	
-	// Get mobile image size width for sizes attribute
-	$mobile_image_width = 0;
+/**
+ * Get image width for a given size name.
+ *
+ * @since 0.1.1
+ *
+ * @param string $size_name Image size name.
+ * @param array  $image_src Optional. Image src array from wp_get_attachment_image_src().
+ * @return int Image width in pixels, or 0 if unknown.
+ */
+function mosne_hero_get_image_width( $size_name, $image_src = null ) {
+	// Try to get from registered sizes first.
 	if ( function_exists( 'wp_get_registered_image_subsizes' ) ) {
 		$size_info = wp_get_registered_image_subsizes();
-		if ( isset( $size_info[ $mobile_image_size ] ) && isset( $size_info[ $mobile_image_size ]['width'] ) ) {
-			$mobile_image_width = $size_info[ $mobile_image_size ]['width'];
-		}
-	}
-	// Fallback: get width from image src if available
-	if ( ! $mobile_image_width && $mobile_image_src && isset( $mobile_image_src[1] ) ) {
-		$mobile_image_width = $mobile_image_src[1];
-	}
-	// Fallback: use standard WordPress sizes
-	if ( ! $mobile_image_width ) {
-		switch ( $mobile_image_size ) {
-			case 'thumbnail':
-				$mobile_image_width = (int) get_option( 'thumbnail_size_w', 150 );
-				break;
-			case 'medium':
-				$mobile_image_width = (int) get_option( 'medium_size_w', 300 );
-				break;
-			case 'medium_large':
-				$mobile_image_width = (int) get_option( 'medium_large_size_w', 768 );
-				break;
-			case 'large':
-				$mobile_image_width = (int) get_option( 'large_size_w', 1024 );
-				break;
-			case 'full':
-				// For full size, use a large breakpoint
-				$mobile_image_width = 1920;
-				break;
+		if ( isset( $size_info[ $size_name ]['width'] ) && $size_info[ $size_name ]['width'] > 0 ) {
+			return (int) $size_info[ $size_name ]['width'];
 		}
 	}
 
-	// Use WP_HTML_Tag_Processor for safe HTML manipulation (WordPress 6.2+)
+	// Fallback: get from image src array.
+	if ( $image_src && isset( $image_src[1] ) && $image_src[1] > 0 ) {
+		return (int) $image_src[1];
+	}
+
+	// Fallback: use WordPress default sizes.
+	$default_widths = array(
+		'thumbnail'    => 150,
+		'medium'       => 300,
+		'medium_large' => 768,
+		'large'        => 1024,
+		'full'         => 1920,
+	);
+
+	if ( isset( $default_widths[ $size_name ] ) ) {
+		$option_key = $size_name . '_size_w';
+		if ( 'full' !== $size_name ) {
+			return (int) get_option( $option_key, $default_widths[ $size_name ] );
+		}
+		return $default_widths[ $size_name ];
+	}
+
+	return 0;
+}
+
+/**
+ * Build sizes attribute for responsive images.
+ *
+ * @since 0.1.1
+ *
+ * @param int $image_width Image width in pixels.
+ * @return string Sizes attribute value.
+ */
+function mosne_hero_build_sizes_attr( $image_width ) {
+	if ( $image_width > 0 ) {
+		return sprintf( '(max-width: %dpx) 100vw, %dpx', $image_width, $image_width );
+	}
+	return '100vw';
+}
+
+/**
+ * Find desktop image HTML in block content.
+ *
+ * @since 0.1.1
+ *
+ * @param string $block_content Block HTML content.
+ * @return string|false Image HTML tag, or false if not found.
+ */
+function mosne_hero_find_desktop_image( $block_content ) {
+	if ( ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
+		return false;
+	}
+
+	$tag_processor = new WP_HTML_Tag_Processor( $block_content );
+
+	while ( $tag_processor->next_tag( array( 'tag_name' => 'IMG' ) ) ) {
+		$class = $tag_processor->get_attribute( 'class' );
+		if ( ! $class ) {
+			continue;
+		}
+
+		// Check for cover block image classes.
+		if ( strpos( $class, 'wp-block-cover__image-background' ) !== false || strpos( $class, 'wp-image-' ) !== false ) {
+			// Try to extract the full img tag using regex.
+			$pattern = '/<img[^>]*class="[^"]*' . preg_quote( str_replace( ' ', '.*', $class ), '/' ) . '[^"]*"[^"]*>/i';
+			if ( preg_match( $pattern, $block_content, $matches ) ) {
+				return $matches[0];
+			}
+
+			// Fallback: simpler pattern.
+			if ( preg_match( '/<img[^>]*class="[^"]*wp-block-cover[^"]*"[^"]*>/i', $block_content, $matches ) ) {
+				return $matches[0];
+			}
+
+			// Last resort: first img tag.
+			if ( preg_match( '/<img[^>]*>/i', $block_content, $matches ) ) {
+				return $matches[0];
+			}
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Optimize img tag for use inside picture element.
+ *
+ * Removes redundant srcset/sizes and sets src to mobile image URL.
+ *
+ * @since 0.1.1
+ *
+ * @param string $img_html         Original img HTML tag.
+ * @param string $mobile_src_url   Mobile image URL for src attribute.
+ * @param string $mobile_position  Mobile object position.
+ * @param string $desktop_position Desktop object position.
+ * @param bool   $high_priority    Whether to add fetchpriority="high".
+ * @return string Optimized img HTML tag.
+ */
+function mosne_hero_optimize_img_for_picture( $img_html, $mobile_src_url, $mobile_position, $desktop_position, $high_priority = false ) {
+	// Remove redundant srcset and sizes attributes.
+	$img_html = preg_replace( '/\s*(?:srcset|sizes)="[^"]*"/i', '', $img_html );
+
+	// Update or add src attribute with mobile URL.
+	if ( $mobile_src_url ) {
+		if ( preg_match( '/src="[^"]*"/i', $img_html ) ) {
+			$img_html = preg_replace( '/src="[^"]*"/i', 'src="' . esc_url( $mobile_src_url ) . '"', $img_html );
+		} else {
+			$img_html = preg_replace( '/(<img[^>]*)(>)/i', '$1 src="' . esc_url( $mobile_src_url ) . '"$2', $img_html, 1 );
+		}
+	}
+
+	// Extract and preserve existing style, removing object-position.
+	$existing_style = '';
+	if ( preg_match( '/style="([^"]*)"/i', $img_html, $style_match ) ) {
+		$existing_style = preg_replace( '/object-position:[^;]*;?/i', '', $style_match[1] );
+		$existing_style = trim( $existing_style );
+	}
+
+	// Build new style with mobile position.
+	$style_value = 'object-position:' . esc_attr( $mobile_position );
+	if ( $existing_style ) {
+		$style_value .= '; ' . esc_attr( $existing_style );
+	}
+
+	// Update style attribute.
+	if ( strpos( $img_html, 'style=' ) !== false ) {
+		$img_html = preg_replace( '/style="[^"]*"/i', 'style="' . esc_attr( $style_value ) . '"', $img_html );
+	} else {
+		$img_html = preg_replace( '/(<img[^>]*)(>)/i', '$1 style="' . esc_attr( $style_value ) . '"$2', $img_html, 1 );
+	}
+
+	// Add or update data attributes for object position.
+	$data_attrs = array(
+		'data-object-position'         => esc_attr( $mobile_position ),
+		'data-desktop-object-position' => esc_attr( $desktop_position ),
+	);
+
+	foreach ( $data_attrs as $attr_name => $attr_value ) {
+		if ( strpos( $img_html, $attr_name ) !== false ) {
+			$img_html = preg_replace( '/' . preg_quote( $attr_name, '/' ) . '="[^"]*"/i', $attr_name . '="' . $attr_value . '"', $img_html );
+		} else {
+			$img_html = preg_replace( '/(<img[^>]*)(>)/i', '$1 ' . $attr_name . '="' . $attr_value . '"$2', $img_html, 1 );
+		}
+	}
+
+	// Add fetchpriority if enabled.
+	if ( $high_priority && strpos( $img_html, 'fetchpriority' ) === false ) {
+		$img_html = preg_replace( '/(<img[^>]*)(>)/i', '$1 fetchpriority="high"$2', $img_html, 1 );
+	}
+
+	return $img_html;
+}
+
+/**
+ * Build picture element HTML with mobile and desktop sources.
+ *
+ * @since 0.1.1
+ *
+ * @param array $args {
+ *     Arguments for building the picture element.
+ *
+ *     @type string $mobile_srcset    Mobile image srcset.
+ *     @type string $mobile_src       Mobile image src URL.
+ *     @type string $mobile_sizes     Mobile sizes attribute.
+ *     @type string $desktop_srcset   Desktop image srcset.
+ *     @type string $desktop_sizes    Desktop sizes attribute.
+ *     @type string $img_html          Fallback img tag HTML.
+ * }
+ * @return string Picture element HTML.
+ */
+function mosne_hero_build_picture_element( $args ) {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'mobile_srcset'  => '',
+			'mobile_src'     => '',
+			'mobile_sizes'   => '100vw',
+			'desktop_srcset' => '',
+			'desktop_sizes'  => '100vw',
+			'img_html'       => '',
+		)
+	);
+
+	$picture_html = '<picture class="wp-block-cover__image-background">';
+
+	// Mobile source (max-width: 782px).
+	if ( ! empty( $args['mobile_srcset'] ) ) {
+		$picture_html .= '<source media="(max-width: 782px)" srcset="' . esc_attr( $args['mobile_srcset'] ) . '" sizes="' . esc_attr( $args['mobile_sizes'] ) . '">';
+	} elseif ( ! empty( $args['mobile_src'] ) ) {
+		$picture_html .= '<source media="(max-width: 782px)" srcset="' . esc_url( $args['mobile_src'] ) . '" sizes="' . esc_attr( $args['mobile_sizes'] ) . '">';
+	}
+
+	// Desktop source (min-width: 783px).
+	if ( ! empty( $args['desktop_srcset'] ) ) {
+		$picture_html .= '<source media="(min-width: 783px)" srcset="' . esc_attr( $args['desktop_srcset'] ) . '" sizes="' . esc_attr( $args['desktop_sizes'] ) . '">';
+	}
+
+	// Fallback img tag.
+	if ( ! empty( $args['img_html'] ) ) {
+		$picture_html .= $args['img_html'];
+	}
+
+	$picture_html .= '</picture>';
+
+	return $picture_html;
+}
+
+/**
+ * Add has-mobile-image class to cover block wrapper.
+ *
+ * @since 0.1.1
+ *
+ * @param string $block_content Block HTML content.
+ * @return string Modified block content.
+ */
+function mosne_hero_add_wrapper_class( $block_content ) {
 	if ( ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
 		return $block_content;
 	}
 
 	$tag_processor = new WP_HTML_Tag_Processor( $block_content );
 
-	// Add class to cover block wrapper
 	while ( $tag_processor->next_tag( array( 'tag_name' => 'DIV' ) ) ) {
 		$class = $tag_processor->get_attribute( 'class' );
 		if ( $class && strpos( $class, 'wp-block-cover' ) !== false && strpos( $class, 'has-mobile-image' ) === false ) {
@@ -332,245 +514,161 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 		}
 	}
 
-	$block_content = $tag_processor->get_updated_html();
+	return $tag_processor->get_updated_html();
+}
 
-	// If we have mobile image (or using desktop for mobile), try to replace desktop image with picture element
-	// Even if desktop_image_id is 0, we can still find the desktop image in the HTML
-	// Create picture element if: we have desktop image AND (we have mobile image OR we're using desktop for mobile)
+/**
+ * Filter cover block output to add mobile image support.
+ *
+ * This function extends the core/cover block to support separate mobile and desktop
+ * background images with responsive picture element markup.
+ *
+ * @since 0.1.1
+ *
+ * @param string $block_content The rendered block content.
+ * @param array  $parsed_block  The parsed block array.
+ * @return string Filtered block content.
+ */
+function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
+	// Early return if not a core/cover block.
+	if ( 'core/cover' !== ( $parsed_block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+
+	$attributes = $parsed_block['attrs'] ?? array();
+
+	// Early return if not our variation.
+	if ( ! isset( $attributes['variation'] ) || 'mosne-hero-cover' !== $attributes['variation'] ) {
+		return $block_content;
+	}
+
+	// Extract and validate attributes.
+	$mobile_image_id    = isset( $attributes['mobileImageId'] ) ? absint( $attributes['mobileImageId'] ) : 0;
+	$mobile_focal_point = $attributes['mobileFocalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
+	$mobile_image_size  = isset( $attributes['mobileImageSize'] ) ? sanitize_text_field( $attributes['mobileImageSize'] ) : 'large';
+	$mobile_image_alt   = isset( $attributes['mobileImageAlt'] ) ? sanitize_text_field( $attributes['mobileImageAlt'] ) : '';
+	$high_fetch_priority = ! empty( $attributes['highFetchPriority'] );
+
+	// Get desktop image ID (supports featured image).
+	$desktop_image_id = mosne_hero_get_desktop_image_id( $attributes );
+
+	// Early return if no images available.
+	if ( ! $mobile_image_id && ! $desktop_image_id ) {
+		return $block_content;
+	}
+
+	// Handle case where desktop image is used for mobile.
+	$use_desktop_for_mobile = ( ! $mobile_image_id && $desktop_image_id > 0 );
+	if ( $use_desktop_for_mobile ) {
+		$mobile_image_id = $desktop_image_id;
+		if ( ! isset( $attributes['mobileFocalPoint'] ) ) {
+			$mobile_focal_point = $attributes['focalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
+		}
+	}
+
+	// Convert focal points to CSS positions.
+	$mobile_object_position  = mosne_hero_focal_point_to_position( $mobile_focal_point );
+	$desktop_focal_point      = $attributes['focalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
+	$desktop_object_position  = mosne_hero_focal_point_to_position( $desktop_focal_point );
+
+	// Get alt text with fallback.
+	$alt_text = mosne_hero_get_alt_text( $mobile_image_alt, $mobile_image_id, $desktop_image_id );
+
+	// Get mobile image data.
+	$actual_mobile_image_id = $use_desktop_for_mobile ? $desktop_image_id : $mobile_image_id;
+	$mobile_srcset          = $actual_mobile_image_id > 0 ? wp_get_attachment_image_srcset( $actual_mobile_image_id, $mobile_image_size ) : '';
+	$mobile_image_src       = $actual_mobile_image_id > 0 ? wp_get_attachment_image_src( $actual_mobile_image_id, $mobile_image_size ) : false;
+	$mobile_image_width     = mosne_hero_get_image_width( $mobile_image_size, $mobile_image_src );
+
+	// Add wrapper class for mobile image support.
+	$block_content = mosne_hero_add_wrapper_class( $block_content );
+
+	// Build picture element if we have both images or using desktop for mobile.
 	if ( $desktop_image_id > 0 && ( $mobile_image_id > 0 || $use_desktop_for_mobile ) ) {
-		// Find the desktop image using WP_HTML_Tag_Processor
-		$tag_processor = new WP_HTML_Tag_Processor( $block_content );
-		$desktop_image_found = false;
+		$desktop_image_html = mosne_hero_find_desktop_image( $block_content );
 
-		// Try to find any img tag in the cover block (desktop image)
-		// WordPress cover block may use different class names
-		while ( $tag_processor->next_tag( array( 'tag_name' => 'IMG' ) ) ) {
-			$class = $tag_processor->get_attribute( 'class' );
-			// Check for wp-block-cover__image-background or wp-image- classes
-			if ( $class && ( strpos( $class, 'wp-block-cover__image-background' ) !== false || strpos( $class, 'wp-image-' ) !== false ) ) {
-				$desktop_image_found = true;
-				
-				// Extract the full img tag from original content
-				// Try multiple patterns to find the image
-				$pattern = '/<img[^>]*class="[^"]*' . preg_quote( str_replace( ' ', '.*', $class ), '/' ) . '[^"]*"[^"]*>/i';
-				preg_match( $pattern, $block_content, $matches );
-				
-				// Fallback: try simpler pattern
-				if ( empty( $matches[0] ) ) {
-					preg_match( '/<img[^>]*class="[^"]*wp-block-cover[^"]*"[^"]*>/i', $block_content, $matches );
-				}
-				
-				// Another fallback: just get the first img tag
-				if ( empty( $matches[0] ) ) {
-					preg_match( '/<img[^>]*>/i', $block_content, $matches );
-				}
-				
-				if ( ! empty( $matches[0] ) ) {
-					$desktop_image_html = $matches[0];
-					
-					// Add fetchpriority if enabled
-					if ( $high_fetch_priority && strpos( $desktop_image_html, 'fetchpriority' ) === false ) {
-						$desktop_image_html = preg_replace( '/(<img[^>]*)(>)/i', '$1 fetchpriority="high"$2', $desktop_image_html, 1 );
-					}
-					
-					// Get desktop srcset
-					$desktop_srcset = $tag_processor->get_attribute( 'srcset' );
-					if ( ! $desktop_srcset && $desktop_image_id > 0 ) {
-						$desktop_srcset = wp_get_attachment_image_srcset( $desktop_image_id );
-					}
-					// If still no srcset, try to extract from the img tag
-					if ( ! $desktop_srcset ) {
-						preg_match( '/srcset="([^"]*)"/i', $desktop_image_html, $srcset_match );
-						if ( ! empty( $srcset_match[1] ) ) {
-							$desktop_srcset = $srcset_match[1];
-						}
-					}
-					
-					// Get desktop image width for sizes attribute
-					$desktop_image_width = 0;
-					// Try to get width from img tag
-					preg_match( '/width="(\d+)"/i', $desktop_image_html, $width_match );
-					if ( ! empty( $width_match[1] ) ) {
-						$desktop_image_width = (int) $width_match[1];
-					}
-					// Fallback: get from attachment if we have ID
-					if ( ! $desktop_image_width && $desktop_image_id > 0 ) {
-						$desktop_image_data = wp_get_attachment_image_src( $desktop_image_id, 'full' );
-						if ( $desktop_image_data && isset( $desktop_image_data[1] ) ) {
-							$desktop_image_width = $desktop_image_data[1];
-						}
-					}
-					// Fallback: use large size default
-					if ( ! $desktop_image_width ) {
-						$desktop_image_width = (int) get_option( 'large_size_w', 1024 );
-					}
-					
-					// Build sizes attributes based on image widths
-					$mobile_sizes = '100vw';
-					if ( $mobile_image_width > 0 ) {
-						$mobile_sizes = sprintf( '(max-width: %dpx) 100vw, %dpx', $mobile_image_width, $mobile_image_width );
-					}
-					
-					$desktop_sizes = '100vw';
-					if ( $desktop_image_width > 0 ) {
-						$desktop_sizes = sprintf( '(max-width: %dpx) 100vw, %dpx', $desktop_image_width, $desktop_image_width );
-					}
-					
-					// Create picture element with sources
-					$picture_html = '<picture class="wp-block-cover__image-background">';
-					
-					// Mobile source (max-width: 782px)
-					if ( $mobile_srcset ) {
-						$picture_html .= '<source media="(max-width: 782px)" srcset="' . esc_attr( $mobile_srcset ) . '" sizes="' . esc_attr( $mobile_sizes ) . '">';
-					} elseif ( $mobile_image_src && isset( $mobile_image_src[0] ) ) {
-						$picture_html .= '<source media="(max-width: 782px)" srcset="' . esc_url( $mobile_image_src[0] ) . '" sizes="' . esc_attr( $mobile_sizes ) . '">';
-					}
-					
-					// Desktop source (min-width: 783px)
-					if ( $desktop_srcset ) {
-						$picture_html .= '<source media="(min-width: 783px)" srcset="' . esc_attr( $desktop_srcset ) . '" sizes="' . esc_attr( $desktop_sizes ) . '">';
-					}
-					
-					// Fallback img - optimized for performance
-					// Remove srcset and sizes (redundant in picture element)
-					// Set src to mobile image URL (fallback for older browsers)
-					$desktop_img_with_attrs = $desktop_image_html;
-					
-					// Remove srcset attribute (redundant - source elements handle this)
-					$desktop_img_with_attrs = preg_replace( '/\s+srcset="[^"]*"/i', '', $desktop_img_with_attrs );
-					$desktop_img_with_attrs = preg_replace( '/srcset="[^"]*"\s+/i', '', $desktop_img_with_attrs );
-					
-					// Remove sizes attribute (redundant - source elements handle this)
-					$desktop_img_with_attrs = preg_replace( '/\s+sizes="[^"]*"/i', '', $desktop_img_with_attrs );
-					$desktop_img_with_attrs = preg_replace( '/sizes="[^"]*"\s+/i', '', $desktop_img_with_attrs );
-					
-					// Set src to mobile image URL (fallback for older browsers)
-					$mobile_src_url = '';
-					if ( $mobile_image_src && isset( $mobile_image_src[0] ) ) {
-						$mobile_src_url = esc_url( $mobile_image_src[0] );
-					} elseif ( $mobile_srcset ) {
-						// Extract first URL from srcset if no direct src available
-						preg_match( '/^([^,\s]+)/', $mobile_srcset, $srcset_match );
-						if ( ! empty( $srcset_match[1] ) ) {
-							$mobile_src_url = esc_url( trim( $srcset_match[1] ) );
-						}
-					}
-					
-					// Update or add src attribute
-					if ( $mobile_src_url ) {
-						if ( preg_match( '/src="[^"]*"/i', $desktop_img_with_attrs ) ) {
-							// Replace existing src
-							$desktop_img_with_attrs = preg_replace( '/src="[^"]*"/i', 'src="' . $mobile_src_url . '"', $desktop_img_with_attrs );
-						} else {
-							// Add src attribute
-							$desktop_img_with_attrs = preg_replace( '/(<img[^>]*)(>)/i', '$1 src="' . $mobile_src_url . '"$2', $desktop_img_with_attrs, 1 );
-						}
-					}
-					
-					// Extract existing style attribute if present
-					$existing_style = '';
-					if ( preg_match( '/style="([^"]*)"/i', $desktop_img_with_attrs, $style_match ) ) {
-						$existing_style = $style_match[1];
-					}
-					
-					// Add or update data-object-position for mobile
-					if ( strpos( $desktop_img_with_attrs, 'data-object-position' ) === false ) {
-						$desktop_img_with_attrs = preg_replace(
-							'/(<img[^>]*)(>)/i',
-							'$1 data-object-position="' . esc_attr( $mobile_object_position ) . '"$2',
-							$desktop_img_with_attrs,
-							1
-						);
-					} else {
-						$desktop_img_with_attrs = preg_replace(
-							'/data-object-position="[^"]*"/i',
-							'data-object-position="' . esc_attr( $mobile_object_position ) . '"',
-							$desktop_img_with_attrs,
-							1
-						);
-					}
-					
-					// Add data-desktop-object-position
-					if ( strpos( $desktop_img_with_attrs, 'data-desktop-object-position' ) === false ) {
-						$desktop_img_with_attrs = preg_replace(
-							'/(<img[^>]*)(>)/i',
-							'$1 data-desktop-object-position="' . esc_attr( $desktop_object_position ) . '"$2',
-							$desktop_img_with_attrs,
-							1
-						);
-					} else {
-						$desktop_img_with_attrs = preg_replace(
-							'/data-desktop-object-position="[^"]*"/i',
-							'data-desktop-object-position="' . esc_attr( $desktop_object_position ) . '"',
-							$desktop_img_with_attrs,
-							1
-						);
-					}
-					
-					// Set initial style with mobile position (will be updated by JS)
-					$style_attr = 'style="object-position:' . esc_attr( $mobile_object_position ) . ';';
-					if ( $existing_style ) {
-						// Preserve existing style but update object-position
-						$existing_style = preg_replace( '/object-position:[^;]*;?/i', '', $existing_style );
-						$style_attr .= ' ' . esc_attr( trim( $existing_style ) );
-					}
-					$style_attr .= '"';
-					
-					if ( strpos( $desktop_img_with_attrs, 'style=' ) === false ) {
-						$desktop_img_with_attrs = preg_replace(
-							'/(<img[^>]*)(>)/i',
-							'$1 ' . $style_attr . '$2',
-							$desktop_img_with_attrs,
-							1
-						);
-					} else {
-						$desktop_img_with_attrs = preg_replace(
-							'/style="[^"]*"/i',
-							$style_attr,
-							$desktop_img_with_attrs,
-							1
-						);
-					}
-					
-					$picture_html .= $desktop_img_with_attrs;
-					$picture_html .= '</picture>';
-
-					// Replace desktop image with picture element
-					$block_content = str_replace( $matches[0], $picture_html, $block_content );
-				}
-				break;
+		if ( $desktop_image_html ) {
+			// Get desktop image data.
+			$desktop_srcset = wp_get_attachment_image_srcset( $desktop_image_id );
+			if ( ! $desktop_srcset && preg_match( '/srcset="([^"]*)"/i', $desktop_image_html, $srcset_match ) ) {
+				$desktop_srcset = $srcset_match[1];
 			}
+
+			$desktop_image_data = wp_get_attachment_image_src( $desktop_image_id, 'full' );
+			$desktop_image_width = 0;
+			if ( preg_match( '/width="(\d+)"/i', $desktop_image_html, $width_match ) ) {
+				$desktop_image_width = (int) $width_match[1];
+			} elseif ( $desktop_image_data && isset( $desktop_image_data[1] ) ) {
+				$desktop_image_width = (int) $desktop_image_data[1];
+			} else {
+				$desktop_image_width = (int) get_option( 'large_size_w', 1024 );
+			}
+
+			// Get mobile src URL for fallback img tag.
+			$mobile_src_url = '';
+			if ( $mobile_image_src && isset( $mobile_image_src[0] ) ) {
+				$mobile_src_url = $mobile_image_src[0];
+			} elseif ( $mobile_srcset && preg_match( '/^([^,\s]+)/', $mobile_srcset, $srcset_url_match ) ) {
+				$mobile_src_url = trim( $srcset_url_match[1] );
+			}
+
+			// Optimize img tag for picture element.
+			$optimized_img = mosne_hero_optimize_img_for_picture(
+				$desktop_image_html,
+				$mobile_src_url,
+				$mobile_object_position,
+				$desktop_object_position,
+				$high_fetch_priority
+			);
+
+			// Build picture element.
+			$picture_html = mosne_hero_build_picture_element(
+				array(
+					'mobile_srcset'  => $mobile_srcset,
+					'mobile_src'     => $mobile_image_src ? $mobile_image_src[0] : '',
+					'mobile_sizes'  => mosne_hero_build_sizes_attr( $mobile_image_width ),
+					'desktop_srcset' => $desktop_srcset,
+					'desktop_sizes'  => mosne_hero_build_sizes_attr( $desktop_image_width ),
+					'img_html'       => $optimized_img,
+				)
+			);
+
+			// Replace desktop image with picture element.
+			$block_content = str_replace( $desktop_image_html, $picture_html, $block_content );
 		}
 	} else {
-		// Fallback: use WP_HTML_Tag_Processor for simple modifications
+		// Fallback: simple modifications when no picture element needed.
+		if ( ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
+			return $block_content;
+		}
+
 		$tag_processor = new WP_HTML_Tag_Processor( $block_content );
-		
-		// Add class to desktop image and fetchpriority
+
+		// Add class and fetchpriority to desktop image.
 		while ( $tag_processor->next_tag( array( 'tag_name' => 'IMG' ) ) ) {
 			$class = $tag_processor->get_attribute( 'class' );
 			if ( $class && strpos( $class, 'wp-block-cover__image-background' ) !== false ) {
 				if ( strpos( $class, 'mosne-hero-desktop-image' ) === false ) {
 					$tag_processor->add_class( 'mosne-hero-desktop-image' );
 				}
-				
-				// Add fetchpriority if enabled
+
 				if ( $high_fetch_priority && ! $tag_processor->get_attribute( 'fetchpriority' ) ) {
 					$tag_processor->set_attribute( 'fetchpriority', 'high' );
 				}
 			}
 		}
-		
+
 		$block_content = $tag_processor->get_updated_html();
 
-		// Add mobile image if it exists (fallback when only mobile image, no desktop)
+		// Add mobile image if only mobile exists (no desktop).
 		if ( $mobile_image_id > 0 && $desktop_image_id === 0 ) {
 			$mobile_image_attrs = array(
-				'class'           => 'mosne-hero-mobile-image wp-block-cover__image-background wp-image-' . $mobile_image_id . ' size-' . $mobile_image_size,
-				'data-object-fit' => 'cover',
-				'alt'             => $alt_text,
-				'data-object-position' => $mobile_object_position,
-				'data-desktop-object-position' => $desktop_object_position,
-				'style'           => 'object-position:' . esc_attr( $mobile_object_position ) . ';',
+				'class'                      => 'mosne-hero-mobile-image wp-block-cover__image-background wp-image-' . absint( $mobile_image_id ) . ' size-' . esc_attr( $mobile_image_size ),
+				'data-object-fit'            => 'cover',
+				'alt'                        => esc_attr( $alt_text ),
+				'data-object-position'       => esc_attr( $mobile_object_position ),
+				'data-desktop-object-position' => esc_attr( $desktop_object_position ),
+				'style'                      => 'object-position:' . esc_attr( $mobile_object_position ) . ';',
 			);
 
 			if ( $high_fetch_priority ) {
@@ -584,16 +682,14 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 				$mobile_image_attrs
 			);
 
-			// Insert mobile image before desktop image
+			// Insert mobile image before desktop image.
 			$tag_processor = new WP_HTML_Tag_Processor( $block_content );
 			while ( $tag_processor->next_tag( array( 'tag_name' => 'IMG' ) ) ) {
 				$class = $tag_processor->get_attribute( 'class' );
 				if ( $class && ( strpos( $class, 'mosne-hero-desktop-image' ) !== false || strpos( $class, 'wp-block-cover__image-background' ) !== false ) ) {
-					// Find position and insert mobile image before
-					preg_match( '/<img[^>]*class="[^"]*' . preg_quote( str_replace( ' ', '.*', $class ), '/' ) . '[^"]*"[^"]*>/i', $block_content, $img_matches, PREG_OFFSET_CAPTURE );
-					if ( ! empty( $img_matches[0] ) ) {
-						$insert_pos = $img_matches[0][1];
-						$block_content = substr_replace( $block_content, $mobile_image_html, $insert_pos, 0 );
+					$pattern = '/<img[^>]*class="[^"]*' . preg_quote( str_replace( ' ', '.*', $class ), '/' ) . '[^"]*"[^"]*>/i';
+					if ( preg_match( $pattern, $block_content, $img_matches, PREG_OFFSET_CAPTURE ) ) {
+						$block_content = substr_replace( $block_content, $mobile_image_html, $img_matches[0][1], 0 );
 					}
 					break;
 				}
