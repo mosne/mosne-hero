@@ -529,9 +529,41 @@ function mosne_hero_render_cover_block( $block_content, $parsed_block ) {
 						$picture_html .= '<source media="(min-width: 783px)" srcset="' . esc_attr( $desktop_srcset ) . '" sizes="' . esc_attr( $desktop_sizes ) . '">';
 					}
 					
-					// Fallback img (desktop image)
-					// Add data attributes for object position switching
+					// Fallback img - optimized for performance
+					// Remove srcset and sizes (redundant in picture element)
+					// Set src to mobile image URL (fallback for older browsers)
 					$desktop_img_with_attrs = $desktop_image_html;
+					
+					// Remove srcset attribute (redundant - source elements handle this)
+					$desktop_img_with_attrs = preg_replace( '/\s+srcset="[^"]*"/i', '', $desktop_img_with_attrs );
+					$desktop_img_with_attrs = preg_replace( '/srcset="[^"]*"\s+/i', '', $desktop_img_with_attrs );
+					
+					// Remove sizes attribute (redundant - source elements handle this)
+					$desktop_img_with_attrs = preg_replace( '/\s+sizes="[^"]*"/i', '', $desktop_img_with_attrs );
+					$desktop_img_with_attrs = preg_replace( '/sizes="[^"]*"\s+/i', '', $desktop_img_with_attrs );
+					
+					// Set src to mobile image URL (fallback for older browsers)
+					$mobile_src_url = '';
+					if ( $mobile_image_src && isset( $mobile_image_src[0] ) ) {
+						$mobile_src_url = esc_url( $mobile_image_src[0] );
+					} elseif ( $mobile_srcset ) {
+						// Extract first URL from srcset if no direct src available
+						preg_match( '/^([^,\s]+)/', $mobile_srcset, $srcset_match );
+						if ( ! empty( $srcset_match[1] ) ) {
+							$mobile_src_url = esc_url( trim( $srcset_match[1] ) );
+						}
+					}
+					
+					// Update or add src attribute
+					if ( $mobile_src_url ) {
+						if ( preg_match( '/src="[^"]*"/i', $desktop_img_with_attrs ) ) {
+							// Replace existing src
+							$desktop_img_with_attrs = preg_replace( '/src="[^"]*"/i', 'src="' . $mobile_src_url . '"', $desktop_img_with_attrs );
+						} else {
+							// Add src attribute
+							$desktop_img_with_attrs = preg_replace( '/(<img[^>]*)(>)/i', '$1 src="' . $mobile_src_url . '"$2', $desktop_img_with_attrs, 1 );
+						}
+					}
 					
 					// Extract existing style attribute if present
 					$existing_style = '';
