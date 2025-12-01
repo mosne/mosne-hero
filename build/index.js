@@ -227,7 +227,7 @@ const FocalPointPicker = _wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Foca
 (0,_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__.registerBlockVariation)("core/cover", {
   name: "mosne-hero-cover",
   title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Hero Cover (Mobile & Desktop)", "mosne-hero"),
-  description: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Cover block with separate mobile and desktop background images.", "mosne-hero"),
+  description: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Cover block with separate mobile and desktop background images and sizes.", "mosne-hero"),
   attributes: {
     variation: "mosne-hero-cover"
   },

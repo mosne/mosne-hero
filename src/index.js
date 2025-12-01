@@ -34,7 +34,7 @@ registerBlockVariation("core/cover", {
 	name: "mosne-hero-cover",
 	title: __("Hero Cover (Mobile & Desktop)", "mosne-hero"),
 	description: __(
-		"Cover block with separate mobile and desktop background images.",
+		"Cover block with separate mobile and desktop background images and sizes.",
 		"mosne-hero",
 	),
 	attributes: {

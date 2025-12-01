@@ -1,19 +1,18 @@
 === Mosne Hero ===
-Contributors:      The WordPress Contributors
-Tags:              block
+Contributors:      mosne
+Tags:              block, cover, image, size
 Tested up to:      6.7
 Stable tag:        0.1.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
-Example block scaffolded with Create Block tool.
+This plugin extends the core/cover block with separate mobile and desktop background images and sizes.
 
 == Description ==
 
-This is the long description. No limit, and you can use Markdown (as well as in the following sections).
-
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+this plugin extends the core/cover block with separate mobile and desktop background images and sizes.
+it allows you to select a mobile image and a desktop image, and a size for the mobile image.
+this increases the performance of the website by loading the smaller image on mobile devices.
 
 == Installation ==
 
