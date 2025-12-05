@@ -14,6 +14,7 @@ import {
 	TextControl,
 	ToggleControl,
 	Button,
+	Notice,
 } from "@wordpress/components";
 
 // MediaUpload and MediaUploadCheck need to be imported from block-editor
@@ -192,6 +193,13 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 
 		const mobileFocalPointValue = mobileFocalPoint || { x: 0.5, y: 0.5 };
 
+		// Check if mobile image feature is unavailable
+		const hasParallax = attributes.hasParallax || false;
+		const backgroundType = attributes.backgroundType || "image";
+		const isRepeated = attributes.isRepeated || false;
+		const isMobileUnavailable =
+			hasParallax || backgroundType !== "image" || isRepeated;
+
 		// Ensure all required components are available
 		if (
 			!PanelBody ||
@@ -215,12 +223,29 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 						title={__("Mobile Image", "mosne-hero")}
 						initialOpen={true}
 					>
+						{/* Warning message if mobile version is unavailable */}
+						{isMobileUnavailable && (
+							<Notice
+								status="warning"
+								isDismissible={false}
+								className="mosne-hero-warning"
+							>
+								{__(
+									"The mobile version is not available if these variables are on.",
+									"mosne-hero"
+								)}
+							</Notice>
+						)}
 						{/* Mobile Image Size Selector - Always visible */}
 						<SelectControl
 							label={__("Mobile Image Size", "mosne-hero")}
 							value={mobileImageSize || "large"}
 							options={imageSizeOptions}
+							disabled={isMobileUnavailable}
 							onChange={(value) => {
+								if (isMobileUnavailable) {
+									return;
+								}
 								setAttributes({ mobileImageSize: value });
 								// Update URL if mobile image exists
 								if (mobileImage) {
@@ -240,7 +265,13 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 						<ToggleControl
 							label={__("High Fetch Priority", "mosne-hero")}
 							checked={highFetchPriority}
-							onChange={(value) => setAttributes({ highFetchPriority: value })}
+							disabled={isMobileUnavailable}
+							onChange={(value) => {
+								if (isMobileUnavailable) {
+									return;
+								}
+								setAttributes({ highFetchPriority: value });
+							}}
 							help={__(
 								"Prioritize loading of both desktop and mobile images. Use for above-the-fold hero images.",
 								"mosne-hero",
@@ -261,6 +292,13 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 										typeof mobileImageUrl === "string" &&
 										!isBlobURL(mobileImageUrl);
 
+									// Prevent opening media library if mobile is unavailable
+									const handleOpen = () => {
+										if (!isMobileUnavailable) {
+											open();
+										}
+									};
+
 									return (
 										<div>
 											{hasImage ? (
@@ -270,7 +308,11 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 															label={__("Focal Point Picker", "mosne-hero")}
 															url={mobileImageUrl}
 															value={mobileFocalPointValue}
+															disabled={isMobileUnavailable}
 															onChange={(value) => {
+																if (isMobileUnavailable) {
+																	return;
+																}
 																if (
 																	value &&
 																	typeof value === "object" &&
@@ -285,9 +327,13 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 													<TextControl
 														label={__("Alt Text", "mosne-hero")}
 														value={mobileImageAlt || ""}
-														onChange={(value) =>
-															setAttributes({ mobileImageAlt: value })
-														}
+														disabled={isMobileUnavailable}
+														onChange={(value) => {
+															if (isMobileUnavailable) {
+																return;
+															}
+															setAttributes({ mobileImageAlt: value });
+														}}
 														help={__(
 															"Describe the purpose of the image. Leave empty to use the image's default alt text.",
 															"mosne-hero",
@@ -297,13 +343,18 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 														onClick={onRemoveMobileImage}
 														variant="secondary"
 														isDestructive
+														disabled={isMobileUnavailable}
 														style={{ marginTop: "10px", width: "100%" }}
 													>
 														{__("Remove mobile image", "mosne-hero")}
 													</Button>
 												</>
 											) : (
-												<Button onClick={open} variant="primary">
+												<Button
+													onClick={handleOpen}
+													variant="primary"
+													disabled={isMobileUnavailable}
+												>
 													{mobileImageId && mobileImageId > 0
 														? __("Replace mobile image", "mosne-hero")
 														: __("Select mobile image", "mosne-hero")}
