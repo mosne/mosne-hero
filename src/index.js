@@ -23,7 +23,7 @@ import { MediaUpload, MediaUploadCheck } from "@wordpress/block-editor";
 // Import FocalPointPicker - check if it exists at runtime
 import * as wpComponents from "@wordpress/components";
 const FocalPointPicker = wpComponents.FocalPointPicker || null;
-import { __ } from "@wordpress/i18n";
+import { __, sprintf } from "@wordpress/i18n";
 import { useSelect } from "@wordpress/data";
 import { useEffect } from "@wordpress/element";
 import { isBlobURL } from "@wordpress/blob";
@@ -200,6 +200,57 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 		const isMobileUnavailable =
 			hasParallax || backgroundType !== "image" || isRepeated;
 
+		// Build dynamic warning message based on which options are enabled
+		const unavailableReasons = [];
+		if (hasParallax) {
+			unavailableReasons.push(__("Parallax", "mosne-hero"));
+		}
+		if (backgroundType !== "image") {
+			const backgroundTypeLabel =
+				backgroundType === "video"
+					? __("Video background", "mosne-hero")
+					: __("Non-image background", "mosne-hero");
+			unavailableReasons.push(backgroundTypeLabel);
+		}
+		if (isRepeated) {
+			unavailableReasons.push(__("Repeated", "mosne-hero"));
+		}
+
+		// Generate dynamic warning message
+		let warningMessage = "";
+		if (unavailableReasons.length === 1) {
+			warningMessage = sprintf(
+				/* translators: %s: feature name (e.g., Parallax, Video background) */
+				__(
+					"The mobile version is not available when %s is enabled.",
+					"mosne-hero"
+				),
+				unavailableReasons[0]
+			);
+		} else if (unavailableReasons.length === 2) {
+			warningMessage = sprintf(
+				/* translators: %1$s: first feature, %2$s: second feature */
+				__(
+					"The mobile version is not available when %1$s or %2$s are enabled.",
+					"mosne-hero"
+				),
+				unavailableReasons[0],
+				unavailableReasons[1]
+			);
+		} else if (unavailableReasons.length >= 3) {
+			const lastReason = unavailableReasons.pop();
+			const otherReasons = unavailableReasons.join(", ");
+			warningMessage = sprintf(
+				/* translators: %1$s: list of features, %2$s: last feature */
+				__(
+					"The mobile version is not available when %1$s, and %2$s are enabled.",
+					"mosne-hero"
+				),
+				otherReasons,
+				lastReason
+			);
+		}
+
 		// Ensure all required components are available
 		if (
 			!PanelBody ||
@@ -224,16 +275,13 @@ const withMobileImageControls = createHigherOrderComponent((BlockEdit) => {
 						initialOpen={true}
 					>
 						{/* Warning message if mobile version is unavailable */}
-						{isMobileUnavailable && (
+						{isMobileUnavailable && warningMessage && (
 							<Notice
 								status="warning"
 								isDismissible={false}
 								className="mosne-hero-warning"
 							>
-								{__(
-									"The mobile version is not available if these variables are on.",
-									"mosne-hero"
-								)}
+								{warningMessage}
 							</Notice>
 						)}
 						{/* Mobile Image Size Selector - Always visible */}
