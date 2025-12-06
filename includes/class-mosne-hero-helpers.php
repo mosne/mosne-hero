@@ -89,6 +89,24 @@ class Mosne_Hero_Helpers {
 	}
 
 	/**
+	 * Get desktop alt text from block attributes, with fallback to attachment meta.
+	 *
+	 * @since 0.1.1
+	 *
+	 * @param array $attributes       Block attributes.
+	 * @param int   $desktop_image_id Desktop image ID.
+	 * @return string Alt text, empty string if none found.
+	 */
+	public static function get_desktop_alt_text( $attributes, $desktop_image_id ) {
+		// First, check for alt attribute in block attributes.
+		if ( isset( $attributes['alt'] ) && ! empty( $attributes['alt'] ) ) {
+			return sanitize_text_field( $attributes['alt'] );
+		}
+
+		return '';
+	}
+
+	/**
 	 * Get image width for a given size name.
 	 *
 	 * @since 0.1.1
@@ -201,10 +219,12 @@ class Mosne_Hero_Helpers {
 	 * @param string $mobile_src_url   Mobile image URL for src attribute.
 	 * @param string $mobile_position  Mobile object position.
 	 * @param string $desktop_position Desktop object position.
+	 * @param string $mobile_alt       Mobile alt text.
+	 * @param string $desktop_alt      Desktop alt text.
 	 * @param bool   $high_priority    Whether to add fetchpriority="high".
 	 * @return string Optimized img HTML tag.
 	 */
-	public static function optimize_img_for_picture( $img_html, $mobile_src_url, $mobile_position, $desktop_position, $high_priority = false ) {
+	public static function optimize_img_for_picture( $img_html, $mobile_src_url, $mobile_position, $desktop_position, $mobile_alt = '', $desktop_alt = '', $high_priority = false ) {
 		// Remove redundant srcset and sizes attributes.
 		$img_html = preg_replace( '/\s*(?:srcset|sizes)="[^"]*"/i', '', $img_html );
 
@@ -248,6 +268,27 @@ class Mosne_Hero_Helpers {
 				$img_html = preg_replace( '/' . preg_quote( $attr_name, '/' ) . '="[^"]*"/i', $attr_name . '="' . $attr_value . '"', $img_html );
 			} else {
 				$img_html = preg_replace( '/(<img[^>]*)(>)/i', '$1 ' . $attr_name . '="' . $attr_value . '"$2', $img_html, 1 );
+			}
+		}
+
+		// Add or update data-desktop-alt attribute.
+		if ( ! empty( $desktop_alt ) ) {
+			$desktop_alt_attr = 'data-desktop-alt="' . esc_attr( $desktop_alt ) . '"';
+			if ( strpos( $img_html, 'data-desktop-alt' ) !== false ) {
+				$img_html = preg_replace( '/data-desktop-alt="[^"]*"/i', $desktop_alt_attr, $img_html );
+			} else {
+				$img_html = preg_replace( '/(<img[^>]*)(>)/i', '$1 ' . $desktop_alt_attr . '$2', $img_html, 1 );
+			}
+		}
+
+		// Set alt attribute to mobile alt (will be switched by JavaScript based on breakpoint).
+		if ( ! empty( $mobile_alt ) ) {
+			if ( strpos( $img_html, 'alt=' ) !== false ) {
+				// Match only the alt attribute, not attributes containing "alt" like data-desktop-alt.
+				// Use negative lookbehind to ensure "alt" is not preceded by word characters or hyphen.
+				$img_html = preg_replace( '/(?<![\w-])alt="[^"]*"/i', 'alt="' . esc_attr( $mobile_alt ) . '"', $img_html );
+			} else {
+				$img_html = preg_replace( '/(<img[^>]*)(>)/i', '$1 alt="' . esc_attr( $mobile_alt ) . '"$2', $img_html, 1 );
 			}
 		}
 

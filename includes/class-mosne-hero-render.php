@@ -80,8 +80,11 @@ class Mosne_Hero_Render {
 		$desktop_focal_point     = $attributes['focalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
 		$desktop_object_position = Mosne_Hero_Helpers::focal_point_to_position( $desktop_focal_point );
 
-		// Get alt text with fallback.
-		$alt_text = Mosne_Hero_Helpers::get_alt_text( $mobile_image_alt, $mobile_image_id, $desktop_image_id );
+		// Get mobile alt text with fallback.
+		$mobile_alt_text = Mosne_Hero_Helpers::get_alt_text( $mobile_image_alt, $mobile_image_id, $desktop_image_id );
+
+		// Get desktop alt text from block attribute, with fallback to attachment meta.
+		$desktop_alt_text = Mosne_Hero_Helpers::get_desktop_alt_text( $attributes, $desktop_image_id );
 
 		// Get mobile image data.
 		$actual_mobile_image_id = $use_desktop_for_mobile ? $desktop_image_id : $mobile_image_id;
@@ -121,12 +124,22 @@ class Mosne_Hero_Render {
 					$mobile_src_url = trim( $srcset_url_match[1] );
 				}
 
+				// Extract desktop alt from existing img tag if present (as additional fallback).
+				$desktop_alt_from_html = '';
+				if ( preg_match( '/alt="([^"]*)"/i', $desktop_image_html, $alt_match ) ) {
+					$desktop_alt_from_html = sanitize_text_field( $alt_match[1] );
+				}
+				// Use block attribute alt first, then HTML alt, then attachment meta.
+				$final_desktop_alt = ! empty( $desktop_alt_text ) ? $desktop_alt_text : ( ! empty( $desktop_alt_from_html ) ? $desktop_alt_from_html : '' );
+
 				// Optimize img tag for picture element.
 				$optimized_img = Mosne_Hero_Helpers::optimize_img_for_picture(
 					$desktop_image_html,
 					$mobile_src_url,
 					$mobile_object_position,
 					$desktop_object_position,
+					$mobile_alt_text,
+					$final_desktop_alt,
 					$high_fetch_priority
 				);
 
@@ -174,9 +187,10 @@ class Mosne_Hero_Render {
 				$mobile_image_attrs = array(
 					'class'                      => 'mosne-hero-mobile-image wp-block-cover__image-background wp-image-' . absint( $mobile_image_id ) . ' size-' . esc_attr( $mobile_image_size ),
 					'data-object-fit'            => 'cover',
-					'alt'                        => esc_attr( $alt_text ),
+					'alt'                        => esc_attr( $mobile_alt_text ),
 					'data-object-position'       => esc_attr( $mobile_object_position ),
 					'data-desktop-object-position' => esc_attr( $desktop_object_position ),
+					'data-desktop-alt'           => esc_attr( $desktop_alt_text ),
 					'style'                      => 'object-position:' . esc_attr( $mobile_object_position ) . ';',
 				);
 
