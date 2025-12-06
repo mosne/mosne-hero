@@ -9,6 +9,7 @@ import {
 	PanelBody,
 	SelectControl,
 	TextControl,
+	TextareaControl,
 	ToggleControl,
 	Button,
 	Notice,
@@ -198,9 +199,10 @@ export function MobileImagePanel({ attributes, setAttributes }) {
 													}}
 												/>
 											)}
-											<TextControl
+											<TextareaControl
 												label={__("Alt Text", "mosne-hero")}
 												value={mobileImageAlt || ""}
+												rows={4}
 												disabled={mobileUnavailable}
 												onChange={(value) => {
 													if (mobileUnavailable) {
@@ -218,7 +220,7 @@ export function MobileImagePanel({ attributes, setAttributes }) {
 												variant="secondary"
 												isDestructive
 												disabled={mobileUnavailable}
-												style={{ marginTop: "10px", width: "100%" }}
+												style={{ marginTop: "10px", width: "100%", justifyContent: "center" }}
 											>
 												{__("Remove mobile image", "mosne-hero")}
 											</Button>
