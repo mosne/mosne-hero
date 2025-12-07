@@ -1,0 +1,219 @@
+# Copyright (C) 2025 Mosne
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Mosne Hero 0.1.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mosne-hero\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-12-07T14:15:03+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: mosne-hero\n"
+
+#. Plugin Name of the plugin
+msgid "Mosne Hero"
+msgstr ""
+
+#. Description of the plugin
+msgid "Extends core/cover block with separate mobile and desktop background images and sizes."
+msgstr ""
+
+#. Author of the plugin
+msgid "Mosne"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://mosne.it"
+msgstr ""
+
+#: includes/class-mosne-hero-blocks.php:116
+msgid "Hero Mobile"
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:71
+#: includes/class-mosne-hero-settings.php:72
+msgid "Mosne Hero Mobile"
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:98
+msgid "Image Sizes"
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:113
+msgid "Breakpoint Settings"
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:173
+msgid "Configure the mobile image sizes that will be registered in WordPress."
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:190
+msgid "Enable Image Sizes"
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:196
+msgid "Register mobile image sizes in WordPress"
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:199
+msgid "When enabled, the mobile image sizes will be registered and available for use throughout WordPress."
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:204
+#: includes/class-mosne-hero-settings.php:207
+msgid "Hero Mobile size"
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:208
+msgid "Width"
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:211
+msgid "Height"
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:215
+msgid "Crop mobile images to exact dimensions (normally images are proportional)"
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:217
+msgid "Retina size (2x) will be automatically calculated from these dimensions."
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:220
+msgid "Note:"
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:220
+msgid "After changing these dimensions, you will need to regenerate thumbnails using a plugin like Regenerate Thumbnails for existing images to use the new sizes."
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:235
+msgid "Configure the breakpoint at which mobile images are displayed. Images will be shown on screens with a maximum width equal to this value."
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:252
+msgid "Mobile Breakpoint"
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:257
+msgid "px"
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:259
+msgid "The maximum viewport width at which mobile images will be displayed. Suggested values: 600px or 728px."
+msgstr ""
+
+#: includes/class-mosne-hero-settings.php:275
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+#: build/index.js:1
+msgid "Full Size"
+msgstr ""
+
+#: build/index.js:1
+msgid "Large"
+msgstr ""
+
+#: build/index.js:1
+msgid "Medium Large"
+msgstr ""
+
+#: build/index.js:1
+msgid "Medium"
+msgstr ""
+
+#: build/index.js:1
+msgid "Thumbnail"
+msgstr ""
+
+#: build/index.js:1
+msgid "Parallax"
+msgstr ""
+
+#: build/index.js:1
+msgid "Video background"
+msgstr ""
+
+#: build/index.js:1
+msgid "Non-image background"
+msgstr ""
+
+#: build/index.js:1
+msgid "Repeated"
+msgstr ""
+
+#. translators: %s: feature name (e.g., Parallax, Video background)
+#: build/index.js:2
+#, js-format
+msgid "The mobile version is not available when %s is enabled."
+msgstr ""
+
+#. translators: %1$s: first feature, %2$s: second feature
+#: build/index.js:3
+#, js-format
+msgid "The mobile version is not available when %1$s or %2$s are enabled."
+msgstr ""
+
+#. translators: %1$s: list of features, %2$s: last feature
+#: build/index.js:4
+#, js-format
+msgid "The mobile version is not available when %1$s, and %2$s are enabled."
+msgstr ""
+
+#: build/index.js:4
+msgid "Mobile Image"
+msgstr ""
+
+#: build/index.js:4
+msgid "Mobile Image Size"
+msgstr ""
+
+#: build/index.js:4
+msgid "Choose the image size for mobile view. If no mobile image is selected, the desktop image will be used with this size."
+msgstr ""
+
+#: build/index.js:4
+msgid "High Fetch Priority"
+msgstr ""
+
+#: build/index.js:4
+msgid "Prioritize loading of both desktop and mobile images. Use for above-the-fold hero images."
+msgstr ""
+
+#: build/index.js:4
+msgid "Focal Point Picker"
+msgstr ""
+
+#: build/index.js:4
+msgid "Alt Text"
+msgstr ""
+
+#: build/index.js:4
+msgid "Describe the purpose of the image. Leave empty to use the image's default alt text."
+msgstr ""
+
+#: build/index.js:4
+msgid "Remove mobile image"
+msgstr ""
+
+#: build/index.js:4
+msgid "Replace mobile image"
+msgstr ""
+
+#: build/index.js:4
+msgid "Select mobile image"
+msgstr ""
+
+#: build/index.js:4
+msgid "Hero Cover (Mobile & Desktop)"
+msgstr ""
+
+#: build/index.js:4
+msgid "Cover block with separate mobile and desktop background images and sizes."
+msgstr ""

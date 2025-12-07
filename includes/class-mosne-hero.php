@@ -111,12 +111,12 @@ class Hero {
 
 		// Register image sizes if enabled.
 		if ( $this->settings->is_image_size_enabled() ) {
-			$mobile_width = $this->settings->get_mobile_width();
+			$mobile_width  = $this->settings->get_mobile_width();
 			$mobile_height = $this->settings->get_mobile_height();
 			// Retina dimensions are calculated as 2x mobile dimensions.
-			$mobile_retina_width = $this->settings->get_mobile_retina_width();
+			$mobile_retina_width  = $this->settings->get_mobile_retina_width();
 			$mobile_retina_height = $this->settings->get_mobile_retina_height();
-			$crop = $this->settings->get_crop();
+			$crop                 = $this->settings->get_crop();
 
 			add_image_size( 'mosne-hero-mobile', $mobile_width, $mobile_height, $crop );
 			add_image_size( 'mosne-hero-mobile-retina', $mobile_retina_width, $mobile_retina_height, $crop );
@@ -139,4 +139,3 @@ class Hero {
 		return defined( 'MOSNE_HERO_VERSION' ) ? MOSNE_HERO_VERSION : '0.1.1';
 	}
 }
-

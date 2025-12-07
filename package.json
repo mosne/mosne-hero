@@ -2,7 +2,7 @@
 	"name": "mosne-hero",
 	"version": "0.1.1",
 	"description": "Extends core/cover block with separate mobile and desktop background images.",
-	"author": "The WordPress Contributors",
+	"author": "mosne",
 	"license": "GPL-2.0-or-later",
 	"main": "build/index.js",
 	"scripts": {
@@ -12,8 +12,45 @@
 		"lint:js": "wp-scripts lint-js",
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "wp-scripts plugin-zip",
-		"start": "wp-scripts start --blocks-manifest"
+		"start": "wp-scripts start --blocks-manifest",
+		"make-pot": "wp i18n make-pot . languages/mosne-hero.pot --slug=mosne-hero --domain=mosne-hero --exclude=node_modules,src",
+		"make-json": "wp i18n make-json languages/ --no-purge",
+		"check": "node check_versions.js"
 	},
+	"keywords": [
+		"wordpress",
+		"plugin",
+		"block",
+		"cover",
+		"image",
+		"size"
+	],
+	"files": [
+		"[^.]*",
+		"!.idea",
+		"!.cursor",
+		"!.distignore",
+		"!.gitattributes",
+		"!.gitignore",
+		"!.nvmrc",
+		"!.plugin-data",
+		"!.wp-env.json",
+		"!.vscode",
+		"!.git",
+		"!.yarn",
+		"!yarn.lock",
+		"!readme.md",
+		"!vendor",
+		"!src",
+		"!*.zip",
+		"!check_versions.js",
+		"!*.sql",
+		"!*.gz",
+		"!*.dist",
+		"!package.json",
+		"!grumphp.yml",
+		"src"
+	],
 	"devDependencies": {
 		"@wordpress/scripts": "^31.1.0"
 	}

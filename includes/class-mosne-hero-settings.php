@@ -42,11 +42,11 @@ class Settings {
 	 * @var array
 	 */
 	private $defaults = array(
-		'enable_image_size'        => true,
-		'mobile_width'              => 414,
-		'mobile_height'             => 736,
-		'crop'                      => true,
-		'breakpoint'                => 728,
+		'enable_image_size' => true,
+		'mobile_width'      => 414,
+		'mobile_height'     => 736,
+		'crop'              => true,
+		'breakpoint'        => 728,
 	);
 
 	/**
@@ -181,7 +181,7 @@ class Settings {
 	 * @return void
 	 */
 	public function render_image_sizes_table() {
-		$settings = $this->get_settings();
+		$settings    = $this->get_settings();
 		$option_name = self::OPTION_NAME;
 		?>
 		<tr>
@@ -243,7 +243,7 @@ class Settings {
 	 * @return void
 	 */
 	public function render_breakpoint_table() {
-		$settings = $this->get_settings();
+		$settings    = $this->get_settings();
 		$option_name = self::OPTION_NAME;
 		?>
 		<tr>
@@ -318,12 +318,12 @@ class Settings {
 	 * @since 0.1.2
 	 *
 	 * @param string $key     Setting key.
-	 * @param mixed  $default Default value if key doesn't exist.
+	 * @param mixed  $defaults Default value if key doesn't exist.
 	 * @return mixed Setting value.
 	 */
-	public function get_setting( $key, $default = null ) {
+	public function get_setting( $key, $defaults = null ) {
 		$settings = $this->get_settings();
-		return isset( $settings[ $key ] ) ? $settings[ $key ] : $default;
+		return isset( $settings[ $key ] ) ? $settings[ $key ] : $defaults;
 	}
 
 	/**
@@ -342,7 +342,7 @@ class Settings {
 		 * @param bool $enabled Whether image size is enabled.
 		 * @return bool Modified value.
 		 */
-		
+
 		return apply_filters( 'mosne_hero_enable_image_size', $this->get_setting( 'enable_image_size', true ) );
 	}
 

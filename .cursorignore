@@ -1,0 +1,8 @@
+# Ignore specific files or directories from AI context
+node_modules/
+vendor/
+.git/
+build/
+dist/
+*.min.js
+*.min.css

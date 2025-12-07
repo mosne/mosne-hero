@@ -99,13 +99,13 @@ class Blocks {
 		}
 
 		// Get dimensions from settings.
-		$mobile_width = 414; // Default fallback.
+		$mobile_width  = 414; // Default fallback.
 		$mobile_height = 736; // Default fallback.
-		
+
 		if ( class_exists( __NAMESPACE__ . '\\Hero' ) ) {
 			$plugin = Hero::get_instance();
 			if ( isset( $plugin->settings ) ) {
-				$mobile_width = $plugin->settings->get_mobile_width();
+				$mobile_width  = $plugin->settings->get_mobile_width();
 				$mobile_height = $plugin->settings->get_mobile_height();
 			}
 		}
@@ -121,4 +121,3 @@ class Blocks {
 		return $editor_settings;
 	}
 }
-

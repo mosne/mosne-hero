@@ -96,10 +96,9 @@ class Helpers {
 	 * @since 0.1.1
 	 *
 	 * @param array $attributes       Block attributes.
-	 * @param int   $desktop_image_id Desktop image ID.
 	 * @return string Alt text, empty string if none found.
 	 */
-	public static function get_desktop_alt_text( $attributes, $desktop_image_id ) {
+	public static function get_desktop_alt_text( $attributes ) {
 		// First, check for alt attribute in block attributes.
 		if ( isset( $attributes['alt'] ) && ! empty( $attributes['alt'] ) ) {
 			return sanitize_text_field( $attributes['alt'] );
@@ -372,7 +371,7 @@ class Helpers {
 		 * @param int $breakpoint Breakpoint in pixels.
 		 * @return int Modified breakpoint.
 		 */
-		$breakpoint = apply_filters( 'mosne_hero_picture_breakpoint', $breakpoint );
+		$breakpoint        = apply_filters( 'mosne_hero_picture_breakpoint', $breakpoint );
 		$desktop_min_width = $breakpoint + 1;
 
 		// Mobile source.
@@ -423,4 +422,3 @@ class Helpers {
 		return $tag_processor->get_updated_html();
 	}
 }
-

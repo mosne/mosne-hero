@@ -54,10 +54,13 @@ class Render {
 		}
 
 		// Extract and validate attributes.
-		$mobile_image_id    = isset( $attributes['mobileImageId'] ) ? absint( $attributes['mobileImageId'] ) : 0;
-		$mobile_focal_point = $attributes['mobileFocalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
-		$mobile_image_size  = isset( $attributes['mobileImageSize'] ) ? sanitize_text_field( $attributes['mobileImageSize'] ) : 'large';
-		$mobile_image_alt   = isset( $attributes['mobileImageAlt'] ) ? sanitize_text_field( $attributes['mobileImageAlt'] ) : '';
+		$mobile_image_id     = isset( $attributes['mobileImageId'] ) ? absint( $attributes['mobileImageId'] ) : 0;
+		$mobile_focal_point  = $attributes['mobileFocalPoint'] ?? array(
+			'x' => 0.5,
+			'y' => 0.5,
+		);
+		$mobile_image_size   = isset( $attributes['mobileImageSize'] ) ? sanitize_text_field( $attributes['mobileImageSize'] ) : 'large';
+		$mobile_image_alt    = isset( $attributes['mobileImageAlt'] ) ? sanitize_text_field( $attributes['mobileImageAlt'] ) : '';
 		$high_fetch_priority = ! empty( $attributes['highFetchPriority'] );
 
 		// Get desktop image ID (supports featured image).
@@ -73,13 +76,19 @@ class Render {
 		if ( $use_desktop_for_mobile ) {
 			$mobile_image_id = $desktop_image_id;
 			if ( ! isset( $attributes['mobileFocalPoint'] ) ) {
-				$mobile_focal_point = $attributes['focalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
+				$mobile_focal_point = $attributes['focalPoint'] ?? array(
+					'x' => 0.5,
+					'y' => 0.5,
+				);
 			}
 		}
 
 		// Convert focal points to CSS positions.
 		$mobile_object_position  = Helpers::focal_point_to_position( $mobile_focal_point );
-		$desktop_focal_point     = $attributes['focalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
+		$desktop_focal_point     = $attributes['focalPoint'] ?? array(
+			'x' => 0.5,
+			'y' => 0.5,
+		);
 		$desktop_object_position = Helpers::focal_point_to_position( $desktop_focal_point );
 
 		// Get mobile alt text with fallback.
@@ -108,7 +117,7 @@ class Render {
 					$desktop_srcset = $srcset_match[1];
 				}
 
-				$desktop_image_data = wp_get_attachment_image_src( $desktop_image_id, 'full' );
+				$desktop_image_data  = wp_get_attachment_image_src( $desktop_image_id, 'full' );
 				$desktop_image_width = 0;
 				if ( preg_match( '/width="(\d+)"/i', $desktop_image_html, $width_match ) ) {
 					$desktop_image_width = (int) $width_match[1];
@@ -151,7 +160,7 @@ class Render {
 					array(
 						'mobile_srcset'  => $mobile_srcset,
 						'mobile_src'     => $mobile_image_src ? $mobile_image_src[0] : '',
-						'mobile_sizes'  => Helpers::build_sizes_attr( $mobile_image_width ),
+						'mobile_sizes'   => Helpers::build_sizes_attr( $mobile_image_width ),
 						'desktop_srcset' => $desktop_srcset,
 						'desktop_sizes'  => Helpers::build_sizes_attr( $desktop_image_width ),
 						'img_html'       => $optimized_img,
@@ -186,15 +195,15 @@ class Render {
 			$block_content = $tag_processor->get_updated_html();
 
 			// Add mobile image if only mobile exists (no desktop).
-			if ( $mobile_image_id > 0 && $desktop_image_id === 0 ) {
+			if ( $mobile_image_id > 0 && 0 === $desktop_image_id ) {
 				$mobile_image_attrs = array(
-					'class'                      => 'mosne-hero-mobile-image wp-block-cover__image-background wp-image-' . absint( $mobile_image_id ) . ' size-' . esc_attr( $mobile_image_size ),
-					'data-object-fit'            => 'cover',
-					'alt'                        => esc_attr( $mobile_alt_text ),
-					'data-object-position'       => esc_attr( $mobile_object_position ),
+					'class'                        => 'mosne-hero-mobile-image wp-block-cover__image-background wp-image-' . absint( $mobile_image_id ) . ' size-' . esc_attr( $mobile_image_size ),
+					'data-object-fit'              => 'cover',
+					'alt'                          => esc_attr( $mobile_alt_text ),
+					'data-object-position'         => esc_attr( $mobile_object_position ),
 					'data-desktop-object-position' => esc_attr( $desktop_object_position ),
-					'data-desktop-alt'           => esc_attr( $desktop_alt_text ),
-					'style'                      => 'object-position:' . esc_attr( $mobile_object_position ) . ';',
+					'data-desktop-alt'             => esc_attr( $desktop_alt_text ),
+					'style'                        => 'object-position:' . esc_attr( $mobile_object_position ) . ';',
 				);
 
 				if ( $high_fetch_priority ) {
@@ -226,4 +235,3 @@ class Render {
 		return $block_content;
 	}
 }
-
