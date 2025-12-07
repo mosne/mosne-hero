@@ -332,16 +332,35 @@ class Mosne_Hero_Helpers {
 
 		$picture_html = '<picture class="wp-block-cover__image-background">';
 
-		// Mobile source (max-width: 782px).
+		// Get breakpoint from settings.
+		$breakpoint = 728; // Default fallback.
+		if ( class_exists( 'Mosne_Hero' ) ) {
+			$plugin = Mosne_Hero::get_instance();
+			if ( isset( $plugin->settings ) ) {
+				$breakpoint = $plugin->settings->get_breakpoint();
+			}
+		}
+		/**
+		 * Filter breakpoint for picture element media queries.
+		 *
+		 * @since 0.1.2
+		 *
+		 * @param int $breakpoint Breakpoint in pixels.
+		 * @return int Modified breakpoint.
+		 */
+		$breakpoint = apply_filters( 'mosne_hero_picture_breakpoint', $breakpoint );
+		$desktop_min_width = $breakpoint + 1;
+
+		// Mobile source.
 		if ( ! empty( $args['mobile_srcset'] ) ) {
-			$picture_html .= '<source media="(max-width: 782px)" srcset="' . esc_attr( $args['mobile_srcset'] ) . '" sizes="' . esc_attr( $args['mobile_sizes'] ) . '">';
+			$picture_html .= '<source media="(max-width: ' . esc_attr( $breakpoint ) . 'px)" srcset="' . esc_attr( $args['mobile_srcset'] ) . '" sizes="' . esc_attr( $args['mobile_sizes'] ) . '">';
 		} elseif ( ! empty( $args['mobile_src'] ) ) {
-			$picture_html .= '<source media="(max-width: 782px)" srcset="' . esc_url( $args['mobile_src'] ) . '" sizes="' . esc_attr( $args['mobile_sizes'] ) . '">';
+			$picture_html .= '<source media="(max-width: ' . esc_attr( $breakpoint ) . 'px)" srcset="' . esc_url( $args['mobile_src'] ) . '" sizes="' . esc_attr( $args['mobile_sizes'] ) . '">';
 		}
 
-		// Desktop source (min-width: 783px).
+		// Desktop source.
 		if ( ! empty( $args['desktop_srcset'] ) ) {
-			$picture_html .= '<source media="(min-width: 783px)" srcset="' . esc_attr( $args['desktop_srcset'] ) . '" sizes="' . esc_attr( $args['desktop_sizes'] ) . '">';
+			$picture_html .= '<source media="(min-width: ' . esc_attr( $desktop_min_width ) . 'px)" srcset="' . esc_attr( $args['desktop_srcset'] ) . '" sizes="' . esc_attr( $args['desktop_sizes'] ) . '">';
 		}
 
 		// Fallback img tag.

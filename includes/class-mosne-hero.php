@@ -58,6 +58,14 @@ class Mosne_Hero {
 	public $render;
 
 	/**
+	 * Settings handler instance.
+	 *
+	 * @since 0.1.2
+	 * @var Mosne_Hero_Settings
+	 */
+	public $settings;
+
+	/**
 	 * Get plugin instance.
 	 *
 	 * @since 0.1.1
@@ -93,6 +101,7 @@ class Mosne_Hero {
 		require_once plugin_dir_path( __FILE__ ) . 'class-mosne-hero-assets.php';
 		require_once plugin_dir_path( __FILE__ ) . 'class-mosne-hero-render.php';
 		require_once plugin_dir_path( __FILE__ ) . 'class-mosne-hero-helpers.php';
+		require_once plugin_dir_path( __FILE__ ) . 'class-mosne-hero-settings.php';
 	}
 
 	/**
@@ -103,9 +112,21 @@ class Mosne_Hero {
 	 * @return void
 	 */
 	private function init() {
-		// Register image sizes.
-		add_image_size( 'mosne-hero-mobile', 414, 736, true );
-		add_image_size( 'mosne-hero-mobile-retina', 828, 1472, true );
+		// Initialize settings first.
+		$this->settings = new Mosne_Hero_Settings();
+
+		// Register image sizes if enabled.
+		if ( $this->settings->is_image_size_enabled() ) {
+			$mobile_width = $this->settings->get_mobile_width();
+			$mobile_height = $this->settings->get_mobile_height();
+			// Retina dimensions are calculated as 2x mobile dimensions.
+			$mobile_retina_width = $this->settings->get_mobile_retina_width();
+			$mobile_retina_height = $this->settings->get_mobile_retina_height();
+			$crop = $this->settings->get_crop();
+
+			add_image_size( 'mosne-hero-mobile', $mobile_width, $mobile_height, $crop );
+			add_image_size( 'mosne-hero-mobile-retina', $mobile_retina_width, $mobile_retina_height, $crop );
+		}
 
 		// Initialize components.
 		$this->blocks = new Mosne_Hero_Blocks();

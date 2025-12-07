@@ -204,9 +204,10 @@ function MobileImagePanel({
                       });
                     }
                   }
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextControl, {
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextareaControl, {
                   label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Alt Text", "mosne-hero"),
                   value: mobileImageAlt || "",
+                  rows: 4,
                   disabled: mobileUnavailable,
                   onChange: value => {
                     if (mobileUnavailable) {
@@ -224,7 +225,8 @@ function MobileImagePanel({
                   disabled: mobileUnavailable,
                   style: {
                     marginTop: "10px",
-                    width: "100%"
+                    width: "100%",
+                    justifyContent: "center"
                   },
                   children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Remove mobile image", "mosne-hero")
                 })]

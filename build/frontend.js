@@ -37,8 +37,11 @@
       const desktopAlt = img.getAttribute('data-desktop-alt') || '';
       console.log(mobileAlt, desktopAlt);
 
+      // Get breakpoint from localized settings, fallback to 728px
+      const breakpoint = window.mosneHeroSettings && window.mosneHeroSettings.breakpoint || 728;
+      const mediaQuery = window.matchMedia(`(max-width: ${breakpoint}px)`);
+
       // Set initial position and alt based on current viewport
-      const mediaQuery = window.matchMedia('(max-width: 782px)');
       updateObjectPosition(img, mediaQuery, mobileObjectPosition, desktopObjectPosition);
       updateAltText(img, mediaQuery, mobileAlt, desktopAlt);
 

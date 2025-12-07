@@ -68,12 +68,30 @@ class Mosne_Hero_Assets {
 			return;
 		}
 
+		// Get breakpoint from settings.
+		$breakpoint = 728; // Default fallback.
+		if ( class_exists( 'Mosne_Hero' ) ) {
+			$plugin = Mosne_Hero::get_instance();
+			if ( isset( $plugin->settings ) ) {
+				$breakpoint = $plugin->settings->get_breakpoint();
+			}
+		}
+
 		wp_enqueue_script(
 			'mosne-hero-frontend',
 			plugin_dir_url( dirname( __FILE__ ) ) . 'build/frontend.js',
 			array(),
 			filemtime( $frontend_file ),
 			true
+		);
+
+		// Localize breakpoint for JavaScript.
+		wp_localize_script(
+			'mosne-hero-frontend',
+			'mosneHeroSettings',
+			array(
+				'breakpoint' => $breakpoint,
+			)
 		);
 	}
 }
