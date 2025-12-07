@@ -340,6 +340,7 @@ class Mosne_Hero_Settings {
 		 * @param bool $enabled Whether image size is enabled.
 		 * @return bool Modified value.
 		 */
+		
 		return apply_filters( 'mosne_hero_enable_image_size', $this->get_setting( 'enable_image_size', true ) );
 	}
 

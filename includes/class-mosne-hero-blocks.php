@@ -85,6 +85,13 @@ class Mosne_Hero_Blocks {
 	 * @return array Modified editor settings.
 	 */
 	public function add_image_sizes_to_editor( $editor_settings ) {
+
+		$settings = new Mosne_Hero_Settings();
+		// verify if image size is enabled.
+		if ( !$settings->is_image_size_enabled() ) {
+			return $editor_settings;
+		}
+
 		// Ensure imageSizes array exists.
 		if ( ! isset( $editor_settings['imageSizes'] ) ) {
 			$editor_settings['imageSizes'] = array();
