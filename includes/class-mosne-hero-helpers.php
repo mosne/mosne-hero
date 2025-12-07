@@ -222,11 +222,18 @@ class Mosne_Hero_Helpers {
 	 * @param string $mobile_alt       Mobile alt text.
 	 * @param string $desktop_alt      Desktop alt text.
 	 * @param bool   $high_priority    Whether to add fetchpriority="high".
+	 * @param string $mobile_image_size Optional. Mobile image size slug. Default empty.
 	 * @return string Optimized img HTML tag.
 	 */
-	public static function optimize_img_for_picture( $img_html, $mobile_src_url, $mobile_position, $desktop_position, $mobile_alt = '', $desktop_alt = '', $high_priority = false ) {
+	public static function optimize_img_for_picture( $img_html, $mobile_src_url, $mobile_position, $desktop_position, $mobile_alt = '', $desktop_alt = '', $high_priority = false, $mobile_image_size = '' ) {
 		// Remove redundant srcset and sizes attributes.
 		$img_html = preg_replace( '/\s*(?:srcset|sizes)="[^"]*"/i', '', $img_html );
+
+		// Replace size class with mobile image size class.
+		if ( ! empty( $mobile_image_size ) ) {
+			// Replace any size-* class with the mobile size class.
+			$img_html = preg_replace( '/\bsize-[a-zA-Z0-9_-]+\b/', 'size-' . esc_attr( $mobile_image_size ), $img_html );
+		}
 
 		// Update or add src attribute with mobile URL.
 		if ( $mobile_src_url ) {
@@ -297,7 +304,22 @@ class Mosne_Hero_Helpers {
 			$img_html = preg_replace( '/(<img[^>]*)(>)/i', '$1 fetchpriority="high"$2', $img_html, 1 );
 		}
 
-		return $img_html;
+		/**
+		 * Filter the optimized img HTML tag.
+		 *
+		 * @since 0.1.2
+		 *
+		 * @param string $img_html         Optimized img HTML tag.
+		 * @param string $mobile_src_url   Mobile image URL.
+		 * @param string $mobile_position  Mobile object position.
+		 * @param string $desktop_position Desktop object position.
+		 * @param string $mobile_alt       Mobile alt text.
+		 * @param string $desktop_alt      Desktop alt text.
+		 * @param bool   $high_priority    Whether fetchpriority="high" is set.
+		 * @param string $mobile_image_size Mobile image size slug.
+		 * @return string Modified img HTML tag.
+		 */
+		return apply_filters( 'mosne_hero_optimized_img_html', $img_html, $mobile_src_url, $mobile_position, $desktop_position, $mobile_alt, $desktop_alt, $high_priority, $mobile_image_size );
 	}
 
 	/**

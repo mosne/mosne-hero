@@ -140,7 +140,8 @@ class Mosne_Hero_Render {
 					$desktop_object_position,
 					$mobile_alt_text,
 					$final_desktop_alt,
-					$high_fetch_priority
+					$high_fetch_priority,
+					$mobile_image_size
 				);
 
 				// Build picture element.

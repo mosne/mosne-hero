@@ -90,12 +90,24 @@ class Mosne_Hero_Blocks {
 			$editor_settings['imageSizes'] = array();
 		}
 
+		// Get dimensions from settings.
+		$mobile_width = 414; // Default fallback.
+		$mobile_height = 736; // Default fallback.
+		
+		if ( class_exists( 'Mosne_Hero' ) ) {
+			$plugin = Mosne_Hero::get_instance();
+			if ( isset( $plugin->settings ) ) {
+				$mobile_width = $plugin->settings->get_mobile_width();
+				$mobile_height = $plugin->settings->get_mobile_height();
+			}
+		}
+
 		// Add custom hero mobile sizes.
 		$editor_settings['imageSizes'][] = array(
 			'slug'   => 'mosne-hero-mobile-retina',
 			'name'   => __( 'Hero Mobile', 'mosne-hero' ),
-			'width'  => 414,
-			'height' => 736,
+			'width'  => $mobile_width,
+			'height' => $mobile_height,
 		);
 
 		return $editor_settings;
