@@ -1,6 +1,6 @@
 === Mosne Hero  ===
 Contributors:      mosne
-Tags:              block, cover, image, size
+Tags:              block, cover, image, performance
 Requires PHP:      7.4
 Requires at least: 6.7
 Tested up to:      6.9
@@ -10,19 +10,46 @@ License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
 This plugin extends the core/cover block with separate mobile and desktop background images and sizes.
 == Description ==
-= Mosne Hero =
-this plugin extends the core/cover block with separate mobile and desktop background images and sizes.
-it allows you to select a mobile image and a desktop image, and a size for the mobile image.
-this increases the performance of the website by loading the smaller image on mobile devices.
-it also allows you to configure the mobile image size and the breakpoint at which the mobile image is displayed.
+This plugin extends the core/cover block with separate mobile and desktop background images and sizes.
+This increases the performance of the website by loading the smaller image on mobile devices and score better in the Core Web Vitals.
+
+== Configuration ==
+* In the Setting > Mosne Hero page you can configure the mobile image size and the breakpoint at which the mobile image is displayed
+* Notice that is a new size so you will need to regenerate the thumbnails using a plugin like Regenerate Thumbnails for existing images to use the new sizes.
+
+== In the Editor ==
+* Add a cover block and select the "Hero Cover (Mobile & Desktop)" variation.
+* Now you can see a new panel with the following options:
+* Mobile image : You can also select a custom image for the desktop and the mobile view.
+* Mobile image size : chose the size that perfectly fits your design.
+* Focal point : You can also select a focal point for the mobile image.
+* Alt text : Add an alternative  text for the mobile image. (Leave empty if is a decorative image)
+* High fetch priority : force the high fetch priority attribute if the image is in the is above the fold.
+* If you use a featured image, leave the mobile image empty and the plugin will use the mobile size for the featured image for the mobile view.
+
+== Limitations ==
+* The mobile image is not displayed in the block editor
+* Video background is not supported
+* Repeated background is not supported
+* Parallax background is not supported
 
 == Key Features ==
 
 * Separate mobile and desktop background images and sizes
 * Configure the mobile image size and the breakpoint at which the mobile image is displayed
+* It works also wiht the featured image
+* Focal point switching for the mobile image
+* Alt text switching for the mobile image
+* High fetch priority for the mobile image
 * Performance-optimized and lightweight
 * No block library required
 * Primarily built with native WordPress components
+
+== Limitations ==
+* The mobile image is not displayed in the block editor
+* Video background is not supported
+* Repeated background is not supported
+* Parallax background is not supported
 
 == Stay Connected ==
 
