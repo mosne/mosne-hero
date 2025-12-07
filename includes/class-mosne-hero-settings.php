@@ -68,10 +68,10 @@ class Settings {
 	 */
 	public function add_settings_page() {
 		add_options_page(
-			__( 'Mosne Hero Mobile', 'mosne-hero' ),
-			__( 'Mosne Hero Mobile', 'mosne-hero' ),
+			__( 'Mosne Hero', 'mosne-hero' ),
+			__( 'Mosne Hero', 'mosne-hero' ),
 			'manage_options',
-			'mosne-hero-mobile',
+			'mosne-hero',
 			array( $this, 'render_settings_page' )
 		);
 	}
