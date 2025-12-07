@@ -1,7 +1,7 @@
 /**
  * Image helper functions.
  *
- * @package MosneHero
+ * @package
  */
 
 /**
@@ -11,19 +11,18 @@
  * @param {string} size  Image size name.
  * @return {string} Image URL.
  */
-export function getImageUrlForSize(image, size) {
-	if (!image) {
-		return "";
+export function getImageUrlForSize( image, size ) {
+	if ( ! image ) {
+		return '';
 	}
 
-	if (size === "full") {
-		return image.source_url || image.url || "";
+	if ( size === 'full' ) {
+		return image.source_url || image.url || '';
 	}
 
-	if (image.media_details?.sizes?.[size]?.source_url) {
-		return image.media_details.sizes[size].source_url;
+	if ( image.media_details?.sizes?.[ size ]?.source_url ) {
+		return image.media_details.sizes[ size ].source_url;
 	}
 
-	return image.source_url || image.url || "";
+	return image.source_url || image.url || '';
 }
-
