@@ -104,7 +104,7 @@ class Mosne_Hero_Blocks {
 
 		// Add custom hero mobile sizes.
 		$editor_settings['imageSizes'][] = array(
-			'slug'   => 'mosne-hero-mobile-retina',
+			'slug'   => 'mosne-hero-mobile',
 			'name'   => __( 'Hero Mobile', 'mosne-hero' ),
 			'width'  => $mobile_width,
 			'height' => $mobile_height,
