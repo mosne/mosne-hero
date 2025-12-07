@@ -6,6 +6,8 @@
  * @since 0.1.1
  */
 
+namespace Mosne\Hero;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 0.1.1
  */
-class Mosne_Hero_Helpers {
+class Helpers {
 
 	/**
 	 * Get desktop image ID from block attributes, including featured image support.
@@ -173,11 +175,11 @@ class Mosne_Hero_Helpers {
 	 * @return string|false Image HTML tag, or false if not found.
 	 */
 	public static function find_desktop_image( $block_content ) {
-		if ( ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
+		if ( ! class_exists( '\WP_HTML_Tag_Processor' ) ) {
 			return false;
 		}
 
-		$tag_processor = new WP_HTML_Tag_Processor( $block_content );
+		$tag_processor = new \WP_HTML_Tag_Processor( $block_content );
 
 		while ( $tag_processor->next_tag( array( 'tag_name' => 'IMG' ) ) ) {
 			$class = $tag_processor->get_attribute( 'class' );
@@ -356,8 +358,8 @@ class Mosne_Hero_Helpers {
 
 		// Get breakpoint from settings.
 		$breakpoint = 728; // Default fallback.
-		if ( class_exists( 'Mosne_Hero' ) ) {
-			$plugin = Mosne_Hero::get_instance();
+		if ( class_exists( __NAMESPACE__ . '\\Hero' ) ) {
+			$plugin = Hero::get_instance();
 			if ( isset( $plugin->settings ) ) {
 				$breakpoint = $plugin->settings->get_breakpoint();
 			}
@@ -404,11 +406,11 @@ class Mosne_Hero_Helpers {
 	 * @return string Modified block content.
 	 */
 	public static function add_wrapper_class( $block_content ) {
-		if ( ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
+		if ( ! class_exists( '\WP_HTML_Tag_Processor' ) ) {
 			return $block_content;
 		}
 
-		$tag_processor = new WP_HTML_Tag_Processor( $block_content );
+		$tag_processor = new \WP_HTML_Tag_Processor( $block_content );
 
 		while ( $tag_processor->next_tag( array( 'tag_name' => 'DIV' ) ) ) {
 			$class = $tag_processor->get_attribute( 'class' );

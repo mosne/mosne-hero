@@ -6,6 +6,8 @@
  * @since 0.1.1
  */
 
+namespace Mosne\Hero;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -15,21 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 0.1.1
  */
-class Mosne_Hero {
-
-	/**
-	 * Plugin version.
-	 *
-	 * @since 0.1.1
-	 * @var string
-	 */
-	const VERSION = '0.1.1';
+class Hero {
 
 	/**
 	 * Plugin instance.
 	 *
 	 * @since 0.1.1
-	 * @var Mosne_Hero
+	 * @var Hero
 	 */
 	private static $instance = null;
 
@@ -37,7 +31,7 @@ class Mosne_Hero {
 	 * Blocks handler instance.
 	 *
 	 * @since 0.1.1
-	 * @var Mosne_Hero_Blocks
+	 * @var Blocks
 	 */
 	public $blocks;
 
@@ -45,7 +39,7 @@ class Mosne_Hero {
 	 * Assets handler instance.
 	 *
 	 * @since 0.1.1
-	 * @var Mosne_Hero_Assets
+	 * @var Assets
 	 */
 	public $assets;
 
@@ -53,7 +47,7 @@ class Mosne_Hero {
 	 * Render handler instance.
 	 *
 	 * @since 0.1.1
-	 * @var Mosne_Hero_Render
+	 * @var Render
 	 */
 	public $render;
 
@@ -61,7 +55,7 @@ class Mosne_Hero {
 	 * Settings handler instance.
 	 *
 	 * @since 0.1.2
-	 * @var Mosne_Hero_Settings
+	 * @var Settings
 	 */
 	public $settings;
 
@@ -70,7 +64,7 @@ class Mosne_Hero {
 	 *
 	 * @since 0.1.1
 	 *
-	 * @return Mosne_Hero Plugin instance.
+	 * @return Hero Plugin instance.
 	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
@@ -97,11 +91,11 @@ class Mosne_Hero {
 	 * @return void
 	 */
 	private function load_dependencies() {
-		require_once plugin_dir_path( __FILE__ ) . 'class-mosne-hero-blocks.php';
-		require_once plugin_dir_path( __FILE__ ) . 'class-mosne-hero-assets.php';
-		require_once plugin_dir_path( __FILE__ ) . 'class-mosne-hero-render.php';
-		require_once plugin_dir_path( __FILE__ ) . 'class-mosne-hero-helpers.php';
-		require_once plugin_dir_path( __FILE__ ) . 'class-mosne-hero-settings.php';
+		require_once MOSNE_HERO_PLUGIN_DIR . 'includes/class-mosne-hero-blocks.php';
+		require_once MOSNE_HERO_PLUGIN_DIR . 'includes/class-mosne-hero-assets.php';
+		require_once MOSNE_HERO_PLUGIN_DIR . 'includes/class-mosne-hero-render.php';
+		require_once MOSNE_HERO_PLUGIN_DIR . 'includes/class-mosne-hero-helpers.php';
+		require_once MOSNE_HERO_PLUGIN_DIR . 'includes/class-mosne-hero-settings.php';
 	}
 
 	/**
@@ -113,7 +107,7 @@ class Mosne_Hero {
 	 */
 	private function init() {
 		// Initialize settings first.
-		$this->settings = new Mosne_Hero_Settings();
+		$this->settings = new Settings();
 
 		// Register image sizes if enabled.
 		if ( $this->settings->is_image_size_enabled() ) {
@@ -129,9 +123,9 @@ class Mosne_Hero {
 		}
 
 		// Initialize components.
-		$this->blocks = new Mosne_Hero_Blocks();
-		$this->assets = new Mosne_Hero_Assets();
-		$this->render = new Mosne_Hero_Render();
+		$this->blocks = new Blocks();
+		$this->assets = new Assets();
+		$this->render = new Render();
 	}
 
 	/**
@@ -142,7 +136,7 @@ class Mosne_Hero {
 	 * @return string Plugin version.
 	 */
 	public function get_version() {
-		return self::VERSION;
+		return defined( 'MOSNE_HERO_VERSION' ) ? MOSNE_HERO_VERSION : '0.1.1';
 	}
 }
 

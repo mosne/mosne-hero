@@ -6,6 +6,8 @@
  * @since 0.1.1
  */
 
+namespace Mosne\Hero;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 0.1.1
  */
-class Mosne_Hero_Render {
+class Render {
 
 	/**
 	 * Constructor.
@@ -59,7 +61,7 @@ class Mosne_Hero_Render {
 		$high_fetch_priority = ! empty( $attributes['highFetchPriority'] );
 
 		// Get desktop image ID (supports featured image).
-		$desktop_image_id = Mosne_Hero_Helpers::get_desktop_image_id( $attributes );
+		$desktop_image_id = Helpers::get_desktop_image_id( $attributes );
 
 		// Early return if no images available.
 		if ( ! $mobile_image_id && ! $desktop_image_id ) {
@@ -76,28 +78,28 @@ class Mosne_Hero_Render {
 		}
 
 		// Convert focal points to CSS positions.
-		$mobile_object_position  = Mosne_Hero_Helpers::focal_point_to_position( $mobile_focal_point );
+		$mobile_object_position  = Helpers::focal_point_to_position( $mobile_focal_point );
 		$desktop_focal_point     = $attributes['focalPoint'] ?? array( 'x' => 0.5, 'y' => 0.5 );
-		$desktop_object_position = Mosne_Hero_Helpers::focal_point_to_position( $desktop_focal_point );
+		$desktop_object_position = Helpers::focal_point_to_position( $desktop_focal_point );
 
 		// Get mobile alt text with fallback.
-		$mobile_alt_text = Mosne_Hero_Helpers::get_alt_text( $mobile_image_alt, $mobile_image_id, $desktop_image_id );
+		$mobile_alt_text = Helpers::get_alt_text( $mobile_image_alt, $mobile_image_id, $desktop_image_id );
 
 		// Get desktop alt text from block attribute, with fallback to attachment meta.
-		$desktop_alt_text = Mosne_Hero_Helpers::get_desktop_alt_text( $attributes, $desktop_image_id );
+		$desktop_alt_text = Helpers::get_desktop_alt_text( $attributes, $desktop_image_id );
 
 		// Get mobile image data.
 		$actual_mobile_image_id = $use_desktop_for_mobile ? $desktop_image_id : $mobile_image_id;
 		$mobile_srcset          = $actual_mobile_image_id > 0 ? wp_get_attachment_image_srcset( $actual_mobile_image_id, $mobile_image_size ) : '';
 		$mobile_image_src       = $actual_mobile_image_id > 0 ? wp_get_attachment_image_src( $actual_mobile_image_id, $mobile_image_size ) : false;
-		$mobile_image_width     = Mosne_Hero_Helpers::get_image_width( $mobile_image_size, $mobile_image_src );
+		$mobile_image_width     = Helpers::get_image_width( $mobile_image_size, $mobile_image_src );
 
 		// Add wrapper class for mobile image support.
-		$block_content = Mosne_Hero_Helpers::add_wrapper_class( $block_content );
+		$block_content = Helpers::add_wrapper_class( $block_content );
 
 		// Build picture element if we have both images or using desktop for mobile.
 		if ( $desktop_image_id > 0 && ( $mobile_image_id > 0 || $use_desktop_for_mobile ) ) {
-			$desktop_image_html = Mosne_Hero_Helpers::find_desktop_image( $block_content );
+			$desktop_image_html = Helpers::find_desktop_image( $block_content );
 
 			if ( $desktop_image_html ) {
 				// Get desktop image data.
@@ -133,7 +135,7 @@ class Mosne_Hero_Render {
 				$final_desktop_alt = ! empty( $desktop_alt_text ) ? $desktop_alt_text : ( ! empty( $desktop_alt_from_html ) ? $desktop_alt_from_html : '' );
 
 				// Optimize img tag for picture element.
-				$optimized_img = Mosne_Hero_Helpers::optimize_img_for_picture(
+				$optimized_img = Helpers::optimize_img_for_picture(
 					$desktop_image_html,
 					$mobile_src_url,
 					$mobile_object_position,
@@ -145,13 +147,13 @@ class Mosne_Hero_Render {
 				);
 
 				// Build picture element.
-				$picture_html = Mosne_Hero_Helpers::build_picture_element(
+				$picture_html = Helpers::build_picture_element(
 					array(
 						'mobile_srcset'  => $mobile_srcset,
 						'mobile_src'     => $mobile_image_src ? $mobile_image_src[0] : '',
-						'mobile_sizes'  => Mosne_Hero_Helpers::build_sizes_attr( $mobile_image_width ),
+						'mobile_sizes'  => Helpers::build_sizes_attr( $mobile_image_width ),
 						'desktop_srcset' => $desktop_srcset,
-						'desktop_sizes'  => Mosne_Hero_Helpers::build_sizes_attr( $desktop_image_width ),
+						'desktop_sizes'  => Helpers::build_sizes_attr( $desktop_image_width ),
 						'img_html'       => $optimized_img,
 					)
 				);
@@ -165,7 +167,7 @@ class Mosne_Hero_Render {
 				return $block_content;
 			}
 
-			$tag_processor = new WP_HTML_Tag_Processor( $block_content );
+			$tag_processor = new \WP_HTML_Tag_Processor( $block_content );
 
 			// Add class and fetchpriority to desktop image.
 			while ( $tag_processor->next_tag( array( 'tag_name' => 'IMG' ) ) ) {
@@ -207,7 +209,7 @@ class Mosne_Hero_Render {
 				);
 
 				// Insert mobile image before desktop image.
-				$tag_processor = new WP_HTML_Tag_Processor( $block_content );
+				$tag_processor = new \WP_HTML_Tag_Processor( $block_content );
 				while ( $tag_processor->next_tag( array( 'tag_name' => 'IMG' ) ) ) {
 					$class = $tag_processor->get_attribute( 'class' );
 					if ( $class && ( strpos( $class, 'mosne-hero-desktop-image' ) !== false || strpos( $class, 'wp-block-cover__image-background' ) !== false ) ) {

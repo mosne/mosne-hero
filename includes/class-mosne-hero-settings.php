@@ -6,6 +6,8 @@
  * @since 0.1.2
  */
 
+namespace Mosne\Hero;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 0.1.2
  */
-class Mosne_Hero_Settings {
+class Settings {
 
 	/**
 	 * Option group name.

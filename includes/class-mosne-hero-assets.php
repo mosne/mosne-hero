@@ -6,6 +6,8 @@
  * @since 0.1.1
  */
 
+namespace Mosne\Hero;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 0.1.1
  */
-class Mosne_Hero_Assets {
+class Assets {
 
 	/**
 	 * Constructor.
@@ -36,11 +38,11 @@ class Mosne_Hero_Assets {
 	 * @return void
 	 */
 	public function enqueue_editor_assets() {
-		$asset_file = include plugin_dir_path( dirname( __FILE__ ) ) . 'build/index.asset.php';
+		$asset_file = include MOSNE_HERO_PLUGIN_DIR . 'build/index.asset.php';
 
 		wp_enqueue_script(
 			'mosne-hero-editor',
-			plugin_dir_url( dirname( __FILE__ ) ) . 'build/index.js',
+			MOSNE_HERO_PLUGIN_URL . 'build/index.js',
 			$asset_file['dependencies'],
 			$asset_file['version'],
 			true
@@ -63,15 +65,15 @@ class Mosne_Hero_Assets {
 			return;
 		}
 
-		$frontend_file = plugin_dir_path( dirname( __FILE__ ) ) . 'build/frontend.js';
+		$frontend_file = MOSNE_HERO_PLUGIN_DIR . 'build/frontend.js';
 		if ( ! file_exists( $frontend_file ) ) {
 			return;
 		}
 
 		// Get breakpoint from settings.
 		$breakpoint = 728; // Default fallback.
-		if ( class_exists( 'Mosne_Hero' ) ) {
-			$plugin = Mosne_Hero::get_instance();
+		if ( class_exists( __NAMESPACE__ . '\\Hero' ) ) {
+			$plugin = Hero::get_instance();
 			if ( isset( $plugin->settings ) ) {
 				$breakpoint = $plugin->settings->get_breakpoint();
 			}
@@ -79,7 +81,7 @@ class Mosne_Hero_Assets {
 
 		wp_enqueue_script(
 			'mosne-hero-frontend',
-			plugin_dir_url( dirname( __FILE__ ) ) . 'build/frontend.js',
+			MOSNE_HERO_PLUGIN_URL . 'build/frontend.js',
 			array(),
 			filemtime( $frontend_file ),
 			true

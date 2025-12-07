@@ -6,6 +6,8 @@
  * @since 0.1.1
  */
 
+namespace Mosne\Hero;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 0.1.1
  */
-class Mosne_Hero_Blocks {
+class Blocks {
 
 	/**
 	 * Constructor.
@@ -85,10 +87,9 @@ class Mosne_Hero_Blocks {
 	 * @return array Modified editor settings.
 	 */
 	public function add_image_sizes_to_editor( $editor_settings ) {
-
-		$settings = new Mosne_Hero_Settings();
+		$settings = new Settings();
 		// verify if image size is enabled.
-		if ( !$settings->is_image_size_enabled() ) {
+		if ( ! $settings->is_image_size_enabled() ) {
 			return $editor_settings;
 		}
 
@@ -101,8 +102,8 @@ class Mosne_Hero_Blocks {
 		$mobile_width = 414; // Default fallback.
 		$mobile_height = 736; // Default fallback.
 		
-		if ( class_exists( 'Mosne_Hero' ) ) {
-			$plugin = Mosne_Hero::get_instance();
+		if ( class_exists( __NAMESPACE__ . '\\Hero' ) ) {
+			$plugin = Hero::get_instance();
 			if ( isset( $plugin->settings ) ) {
 				$mobile_width = $plugin->settings->get_mobile_width();
 				$mobile_height = $plugin->settings->get_mobile_height();
