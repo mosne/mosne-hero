@@ -1,6 +1,6 @@
 {
 	"name": "mosne-hero",
-	"version": "0.1.1",
+	"version": "0.1.0",
 	"description": "Extends core/cover block with separate mobile and desktop background images.",
 	"author": "mosne",
 	"license": "GPL-2.0-or-later",

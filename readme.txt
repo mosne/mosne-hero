@@ -42,15 +42,11 @@ e.g.
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
-
-An answer to that question.
-
 = Can i use hooks to configure the plugin? =
 
 Yes, you can use hooks to configure the plugin.
 
-```php
+`
 add_filter( 'mosne_hero_enable_image_size', '__return_false' );
 add_filter( 'mosne_hero_mobile_width', 'your_function' );
 add_filter( 'mosne_hero_mobile_retina_width', 'your_function' );
@@ -59,7 +55,7 @@ add_filter( 'mosne_hero_mobile_retina_height', 'your_function' );
 add_filter( 'mosne_hero_crop', 'your_function' );
 add_filter( 'mosne_hero_breakpoint', 'your_function' );
 add_filter( 'mosne_hero_settings', 'your_function' );
-```
+`
 this will disable the image size registration.
 this will return the mobile width and the mobile retina width.
 this will return the mobile height and the mobile retina height.
@@ -79,9 +75,3 @@ this will return the settings.
 
 = 0.1.0 =
 * Release
-
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above. This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation." Arbitrary sections will be shown below the built-in sections outlined above.

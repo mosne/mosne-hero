@@ -32,15 +32,15 @@ try {
 
 	// load version from php file
 	const phpVersion = getVersionFromFile(
-		'mosne-media-library-astrobin.php',
+		'mosne-hero.php',
 		/Version:\s*(\S+)/
 	);
 	console.log( 'plugin', phpVersion );
 
 	// load version from php file as constant
 	const phpConstant = getVersionFromFile(
-		'mosne-media-library-astrobin.php',
-		/define\(\s*'MOSNE_ASTROBIN_VERSION',\s*'(\S+)'\s*\);/
+		'mosne-hero.php',
+		/define\(\s*'MOSNE_HERO_VERSION',\s*'(\S+)'\s*\);/
 	);
 	console.log( 'Constant', phpConstant );
 
@@ -65,7 +65,7 @@ try {
 		console.log( 'Version numbers are inconsistent:' );
 		console.log( `.pluglin-data: ${ pluginDataVersion }` );
 		console.log( `readme.txt: ${ readmeVersion }` );
-		console.log( `mosne-media-library-astrobin.php: ${ phpVersion }` );
+		console.log( `mosne-hero.php: ${ phpVersion }` );
 		console.log( `Constant: ${ phpConstant }` );
 		console.log( `package.json: ${ packageVersion }` );
 		process.exit( 1 );
