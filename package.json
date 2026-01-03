@@ -1,6 +1,6 @@
 {
 	"name": "mosne-hero",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Extends core/cover block with separate mobile and desktop background images.",
 	"author": "mosne",
 	"license": "GPL-2.0-or-later",
@@ -15,7 +15,11 @@
 		"start": "wp-scripts start --blocks-manifest",
 		"make-pot": "wp i18n make-pot . languages/mosne-hero.pot --slug=mosne-hero --domain=mosne-hero --exclude=node_modules,src",
 		"make-json": "wp i18n make-json languages/ --no-purge",
-		"check": "node check_versions.js"
+		"check": "node check_versions.js",
+		"version": "node bump_version.js",
+		"version:patch": "node bump_version.js patch",
+		"version:minor": "node bump_version.js minor",
+		"version:major": "node bump_version.js major"
 	},
 	"keywords": [
 		"wordpress",

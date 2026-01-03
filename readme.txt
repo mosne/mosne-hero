@@ -4,7 +4,7 @@ Tags:              block, cover, image, performance
 Requires PHP:      7.4
 Requires at least: 6.7
 Tested up to:      6.9
-Stable tag:        0.1.1
+Stable tag:        0.1.2
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
