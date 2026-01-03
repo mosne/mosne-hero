@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Mosne Hero
  * Description:       Extends core/cover block with separate mobile and desktop background images and sizes.
- * Version:           0.1.0
+ * Version:           0.1.1
  * Author:            Mosne
  * Author URI: https://mosne.it
  * Requires at least: 6.7
@@ -23,7 +23,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 // Define plugin constants.
-define( 'MOSNE_HERO_VERSION', '0.1.0' );
+define( 'MOSNE_HERO_VERSION', '0.1.1' );
 define( 'MOSNE_HERO_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MOSNE_HERO_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
