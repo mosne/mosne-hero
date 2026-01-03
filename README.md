@@ -83,11 +83,13 @@ add_filter( 'mosne_hero_settings', 'your_function' );
 
 ## Screenshots
 
-1. Add a mobile image and a desktop image
-   ![screenshot-1](https://github.com/mosne/mosne-hero/blob/main/.wordpress-org/screenshot-1.gif)
-2. Setup options and labels
-   ![screenshot-2](https://github.com/mosne/mosne-hero/blob/main/.wordpress-org/screenshot-2.gif)
-3. Render the block
-   ![screenshot-3](https://github.com/mosne/mosne-hero/blob/main/.wordpress-org/screenshot-3.gif)
-4. Example of source code for the block
-   ![screenshot-4](https://github.com/mosne/mosne-hero/blob/main/.wordpress-org/screenshot-4.gif)
+1. Add a block cover with the "Hero Cover (Mobile & Desktop)" variation
+   ![screenshot-1](https://github.com/mosne/mosne-hero/blob/main/.wordpress-org/screenshot-1.jpg)
+2. Add desktop image and activate the high fetch priority
+   ![screenshot-2](https://github.com/mosne/mosne-hero/blob/main/.wordpress-org/screenshot-2.jpg)
+3. Add mobile image and select the size that perfectly fits your design
+   ![screenshot-3](https://github.com/mosne/mosne-hero/blob/main/.wordpress-org/screenshot-3.jpg)
+4. Render of the block in desktop
+   ![screenshot-4](https://github.com/mosne/mosne-hero/blob/main/.wordpress-org/screenshot-4.jpg)
+5. Render of the block in mobile
+   ![screenshot-5](https://github.com/mosne/mosne-hero/blob/main/.wordpress-org/screenshot-5.jpg)
