@@ -86,10 +86,11 @@ add_filter( 'mosne_hero_settings', 'your_function' );
 
 == Screenshots ==
 
-1. Add a mobile image and a desktop image
-2. Setup options and labels
-3. Render the block
-4. Example of source code for the block
+1. Add a block cover with the "Hero Cover (Mobile & Desktop)" variation
+2. Add desktop image and activate the high fetch priority
+3. Add mobile image and select the size that perfectly fits your design
+4. Render of the block in desktop
+5. Render of the block in mobile
 
 == Changelog ==
 
