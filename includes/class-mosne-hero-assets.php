@@ -73,7 +73,7 @@ class Assets {
 		// register the script
 		wp_register_script(
 			'mosne-hero-frontend',
-			MOSNE_HERO_PLUGIN_DIR . 'build/frontend.js',
+			MOSNE_HERO_PLUGIN_URL . 'build/frontend.js',
 			$dependencies,
 			$version,
 			true
