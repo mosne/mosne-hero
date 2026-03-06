@@ -29,7 +29,7 @@ class Assets {
 	public function __construct() {
 		add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_editor_assets' ] );
 		add_action( 'init', [ $this, 'register_frontend_script' ] );
-		add_action( 'render_block', [ $this, 'enqueue_frontend_script' ], 10, 2 );
+		add_action( 'render_block_core/cover', [ $this, 'enqueue_frontend_script' ], 10, 2 );
 	}
 
 	/**
@@ -106,10 +106,12 @@ class Assets {
 	 * @return string
 	 */
 	public function enqueue_frontend_script( $block_content, $block ): string {
+		static $enqueued = false;
 
-		// only enqueue the assets if the cover block variation is used
-		if ( has_block( 'core/cover' ) && 'mosne-hero-cover' === $block['attrs']['variation'] ) {
+		// only enqueue the assets if the cover block variation is used and if not already enqueued
+		if ( ! $enqueued && isset( $block['attrs']['variation'] ) && 'mosne-hero-cover' === $block['attrs']['variation'] ) {
 			wp_enqueue_script( 'mosne-hero-frontend' );
+			$enqueued = true;
 		}
 
 		return $block_content;
