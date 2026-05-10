@@ -134,7 +134,7 @@ class Assets {
 	 * @return string
 	 */
 	public function enqueue_frontend_script( $block_content, $block ): string {
-		static $enqueued = false;
+		static $enqueued       = false;
 		static $video_enqueued = false;
 
 		// only enqueue the assets if the cover block variation is used and if not already enqueued
