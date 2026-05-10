@@ -76,7 +76,11 @@ class Assets {
 			MOSNE_HERO_PLUGIN_URL . 'build/frontend.js',
 			$dependencies,
 			$version,
-			true
+			[
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			]
+
 		);
 
 		// Register video script with its own asset file
@@ -89,7 +93,10 @@ class Assets {
 			MOSNE_HERO_PLUGIN_URL . 'build/frontend-video.js',
 			$video_dependencies,
 			$video_version,
-			true
+			[
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			]
 		);
 
 		// Get breakpoint from settings.
