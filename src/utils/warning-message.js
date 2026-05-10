@@ -16,13 +16,16 @@ export function buildWarningMessage( attributes ) {
 	const hasParallax = attributes.hasParallax || false;
 	const backgroundType = attributes.backgroundType || 'image';
 	const isRepeated = attributes.isRepeated || false;
+	const variation = attributes.variation || '';
 
 	// Build array of reasons
 	const unavailableReasons = [];
 	if ( hasParallax ) {
 		unavailableReasons.push( __( 'Parallax', 'mosne-hero' ) );
 	}
-	if ( backgroundType !== 'image' ) {
+	
+	// Only add background type warnings if not the video variation
+	if ( variation !== 'mosne-hero-video' && backgroundType !== 'image' ) {
 		const backgroundTypeLabel =
 			backgroundType === 'video'
 				? __( 'Video background', 'mosne-hero' )
@@ -85,6 +88,12 @@ export function isMobileUnavailable( attributes ) {
 	const hasParallax = attributes.hasParallax || false;
 	const backgroundType = attributes.backgroundType || 'image';
 	const isRepeated = attributes.isRepeated || false;
+	const variation = attributes.variation || '';
+
+	// Allow video backgrounds for the video variation
+	if ( variation === 'mosne-hero-video' && backgroundType === 'video' ) {
+		return hasParallax || isRepeated;
+	}
 
 	return hasParallax || backgroundType !== 'image' || isRepeated;
 }

@@ -75,6 +75,39 @@ class Blocks {
 			'default' => false,
 		);
 
+		// Video variation attributes
+		$metadata['attributes']['mobileVideoUrl'] = array(
+			'type' => 'string',
+		);
+
+		$metadata['attributes']['desktopVideoUrl'] = array(
+			'type' => 'string',
+		);
+
+		$metadata['attributes']['mobileFocalPoint'] = array(
+			'type' => 'object',
+		);
+
+		$metadata['attributes']['desktopFocalPoint'] = array(
+			'type' => 'object',
+		);
+
+		$metadata['attributes']['mobilePosterId'] = array(
+			'type' => 'number',
+		);
+
+		$metadata['attributes']['desktopPosterId'] = array(
+			'type' => 'number',
+		);
+
+		$metadata['attributes']['mobilePosterUrl'] = array(
+			'type' => 'string',
+		);
+
+		$metadata['attributes']['desktopPosterUrl'] = array(
+			'type' => 'string',
+		);
+
 		return $metadata;
 	}
 
