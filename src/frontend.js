@@ -1,5 +1,5 @@
 /**
- * Frontend script to handle focal point switching based on media queries.
+ * Frontend script to handle focal point and video switching based on media queries.
  *
  * @package
  */

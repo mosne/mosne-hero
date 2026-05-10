@@ -11,6 +11,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 
 import { MobileImagePanel } from './components/mobile-image-panel';
+import { VideoPanel } from './components/video-panel';
 
 /**
  * Register block variation for core/cover with mobile image support.
@@ -30,7 +31,41 @@ registerBlockVariation( 'core/cover', {
 } );
 
 /**
- * Extend core/cover block with mobile image controls.
+ * Register block variation for core/cover with mobile video support.
+ */
+registerBlockVariation( 'core/cover', {
+	name: 'mosne-hero-video',
+	title: __( 'Hero Video (Mobile & Desktop)', 'mosne-hero' ),
+	description: __(
+		'Cover block with separate mobile and desktop background videos and focal points.',
+		'mosne-hero'
+	),
+	attributes: {
+		variation: 'mosne-hero-video',
+		backgroundType: 'video',
+		videoHighFetchPriority: {
+			type: 'boolean',
+			default: true,
+		},
+		desktopPosterId: {
+			type: 'number',
+			default: 0,
+		},
+		desktopPosterSize: {
+			type: 'string',
+			default: 'large',
+		},
+		mobilePosterSize: {
+			type: 'string',
+			default: 'mosne-hero-mobile',
+		},
+	},
+	isDefault: false,
+	scope: [ 'inserter', 'transform' ],
+} );
+
+/**
+ * Extend core/cover block with mobile image and video controls.
  */
 const withMobileImageControls = createHigherOrderComponent( ( BlockEdit ) => {
 	return ( props ) => {
@@ -46,21 +81,30 @@ const withMobileImageControls = createHigherOrderComponent( ( BlockEdit ) => {
 			return <BlockEdit { ...props } />;
 		}
 
-		// Check if this block uses our variation
-		const hasVariationAttr = attributes.variation === 'mosne-hero-cover';
+		// Check if this block uses our variations
+		const isCoverVariation = attributes.variation === 'mosne-hero-cover';
+		const isVideoVariation = attributes.variation === 'mosne-hero-video';
 
 		// Show panel only if variation attribute is set
-		if ( ! hasVariationAttr ) {
+		if ( ! isCoverVariation && ! isVideoVariation ) {
 			return <BlockEdit { ...props } />;
 		}
 
 		return (
 			<>
 				<BlockEdit { ...props } />
-				<MobileImagePanel
-					attributes={ attributes }
-					setAttributes={ props.setAttributes }
-				/>
+				{ isCoverVariation && (
+					<MobileImagePanel
+						attributes={ attributes }
+						setAttributes={ props.setAttributes }
+					/>
+				) }
+				{ isVideoVariation && (
+					<VideoPanel
+						attributes={ attributes }
+						setAttributes={ props.setAttributes }
+					/>
+				) }
 			</>
 		);
 	};
@@ -72,3 +116,73 @@ addFilter(
 	withMobileImageControls,
 	20 // Higher priority to ensure it runs
 );
+
+/**
+ * Add custom attributes to core/cover block.
+ *
+ * @param {Object} settings - Block settings.
+ * @param {string} name     - Block name.
+ * @return {Object} Modified block settings.
+ */
+const addCustomAttributes = ( settings, name ) => {
+	if ( name !== 'core/cover' ) {
+		return settings;
+	}
+
+	return {
+		...settings,
+		attributes: {
+			...settings.attributes,
+			videoHighFetchPriority: {
+				type: 'boolean',
+				default: true,
+			},
+			desktopPosterId: {
+				type: 'number',
+				default: 0,
+			},
+			desktopPosterSize: {
+				type: 'string',
+				default: 'large',
+			},
+			mobilePosterSize: {
+				type: 'string',
+				default: 'mosne-hero-mobile',
+			},
+		},
+	};
+};
+
+addFilter(
+	'blocks.registerBlockType',
+	'mosne-hero/add-cover-attributes',
+	addCustomAttributes
+);
+
+/**
+ * Add CSS to hide default featured image field for video variation.
+ */
+const addEditorStyles = () => {
+	const styleId = 'mosne-hero-editor-styles';
+	if ( document.getElementById( styleId ) ) {
+		return;
+	}
+
+	const style = document.createElement( 'style' );
+	style.id = styleId;
+	style.textContent = `
+		/* Hide default featured image/media upload for video variation */
+		.block-editor-block-inspector__content .block-editor-media-placeholder,
+		[data-type="core/cover"] .block-editor-media-placeholder {
+			display: none;
+		}
+	`;
+	document.head.appendChild( style );
+};
+
+// Add styles when DOM is ready
+if ( document.readyState === 'loading' ) {
+	document.addEventListener( 'DOMContentLoaded', addEditorStyles );
+} else {
+	addEditorStyles();
+}

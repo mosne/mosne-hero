@@ -4,7 +4,7 @@ Tags:              block, cover, image, performance
 Requires PHP:      7.4
 Requires at least: 6.7
 Tested up to:      6.9
-Stable tag:        0.1.5
+Stable tag:        0.2.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,6 +27,12 @@ This increases the performance of the website by loading the smaller image on mo
 * High fetch priority : force the high fetch priority attribute if the image is above the fold.
 * If you use a featured image, leave the mobile image empty and the plugin will use the mobile size for the featured image for the mobile view.
 
+== Video background ==
+* Add a cover block and select the "Hero Video (Mobile & Desktop)" variation.
+* Now you can see a new panel with the following options:
+* Mobile and desktop custom poster : You can also select a custom image for the desktop and the mobile view.
+* Mobile and desktop custom video : You can also select a custom video for the desktop and the mobile view.
+
 == Key Features ==
 
 * Separate mobile and desktop background images and sizes
@@ -38,10 +44,10 @@ This increases the performance of the website by loading the smaller image on mo
 * Performance-optimized and lightweight
 * No block library required
 * Primarily built with native WordPress components
+* Support for all video formats (MP4, WebM, OGG)
 
 == Limitations ==
 * The mobile image is not displayed in the block editor
-* Video background is not supported
 * Repeated background is not supported
 * Parallax background is not supported
 

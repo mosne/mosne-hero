@@ -76,7 +76,26 @@ class Assets {
 			MOSNE_HERO_PLUGIN_URL . 'build/frontend.js',
 			$dependencies,
 			$version,
-			true
+			[
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			]
+		);
+
+		// Register video script with its own asset file
+		$video_asset_file   = include MOSNE_HERO_PLUGIN_DIR . 'build/frontend-video.asset.php';
+		$video_dependencies = $video_asset_file['dependencies'];
+		$video_version      = $video_asset_file['version'];
+
+		wp_register_script(
+			'mosne-hero-frontend-video',
+			MOSNE_HERO_PLUGIN_URL . 'build/frontend-video.js',
+			$video_dependencies,
+			$video_version,
+			[
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			]
 		);
 
 		// Get breakpoint from settings.
@@ -96,6 +115,15 @@ class Assets {
 				'breakpoint' => $breakpoint,
 			]
 		);
+
+		// Localize breakpoint for video script.
+		wp_localize_script(
+			'mosne-hero-frontend-video',
+			'mosneHeroSettings',
+			[
+				'breakpoint' => $breakpoint,
+			]
+		);
 	}
 
 	/**
@@ -106,12 +134,19 @@ class Assets {
 	 * @return string
 	 */
 	public function enqueue_frontend_script( $block_content, $block ): string {
-		static $enqueued = false;
+		static $enqueued       = false;
+		static $video_enqueued = false;
 
 		// only enqueue the assets if the cover block variation is used and if not already enqueued
 		if ( ! $enqueued && isset( $block['attrs']['variation'] ) && 'mosne-hero-cover' === $block['attrs']['variation'] ) {
 			wp_enqueue_script( 'mosne-hero-frontend' );
 			$enqueued = true;
+		}
+
+		// Enqueue video script for video variation
+		if ( ! $video_enqueued && isset( $block['attrs']['variation'] ) && 'mosne-hero-video' === $block['attrs']['variation'] ) {
+			wp_enqueue_script( 'mosne-hero-frontend-video' );
+			$video_enqueued = true;
 		}
 
 		return $block_content;

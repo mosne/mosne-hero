@@ -14,6 +14,8 @@ This increases the performance of the website by loading the smaller image on mo
 
 ## In the Editor
 
+### Hero Cover (Mobile & Desktop)
+
 * Add a cover block and select the "Hero Cover (Mobile & Desktop)" variation.
 * Now you can see a new panel with the following options:
 * Mobile image : You can also select a custom image for the desktop and the mobile view.
@@ -23,20 +25,40 @@ This increases the performance of the website by loading the smaller image on mo
 * High fetch priority : force the high fetch priority attribute if the image is above the fold.
 * If you use a featured image, leave the mobile image empty and the plugin will use the mobile size for the featured image for the mobile view.
 
+### Hero Video (Mobile & Desktop)
+
+* Add a cover block and select the "Hero Video (Mobile & Desktop)" variation.
+* Now you can see new panels with the following options:
+* Desktop video : Select a video file for desktop view (supports MP4, WebM, OGG formats).
+* Mobile video : Select a video file for mobile view. If empty, desktop video will be used.
+* Desktop/Mobile focal points : Set focal points for video positioning on each viewport.
+* Desktop/Mobile poster images : Select poster images shown while videos load.
+* Videos autoplay with sound muted and loop continuously for optimal performance.
+
+#### Performance Optimization (Mobile-First)
+
+The video variation uses a mobile-first approach for optimal performance:
+* Mobile video loads by default as the primary source
+* Desktop video only switches in on larger screens when available
+* This reduces JavaScript activity and DOM manipulation on mobile devices
+* Results in better performance and faster loading on mobile connections
+
 ## Key Features
 
 * Separate mobile and desktop background images and sizes
+* Separate mobile and desktop background videos with responsive switching
 * Configure the mobile image size and the breakpoint at which the mobile image is displayed
 * It also works with the featured image
-* Focal point switching for the mobile image
+* Focal point switching for mobile images and videos
 * Alt text switching for the mobile image
+* Poster image support for videos (mobile & desktop)
 * High fetch priority for the mobile image
 * Performance-optimized and lightweight
+* Support for all video formats (MP4, WebM, OGG)
 
 ## Limitations
 
 * The mobile image is not displayed in the block editor
-* Video background is not supported
 * Repeated background is not supported
 * Parallax background is not supported
 
