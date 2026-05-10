@@ -67,9 +67,9 @@ class Render {
 		$desktop_image_id = Helpers::get_desktop_image_id( $attributes );
 
 		// Extract video attributes.
-		$mobile_video_url    = isset( $attributes['mobileVideoUrl'] ) ? esc_url_raw( $attributes['mobileVideoUrl'] ) : '';
-		$desktop_video_url   = isset( $attributes['url'] ) ? esc_url_raw( $attributes['url'] ) : '';
-		$mobile_focal_point_video = $attributes['mobileFocalPoint'] ?? array(
+		$mobile_video_url          = isset( $attributes['mobileVideoUrl'] ) ? esc_url_raw( $attributes['mobileVideoUrl'] ) : '';
+		$desktop_video_url         = isset( $attributes['url'] ) ? esc_url_raw( $attributes['url'] ) : '';
+		$mobile_focal_point_video  = $attributes['mobileFocalPoint'] ?? array(
 			'x' => 0.5,
 			'y' => 0.5,
 		);
@@ -77,15 +77,15 @@ class Render {
 			'x' => 0.5,
 			'y' => 0.5,
 		);
-		$mobile_poster_id    = isset( $attributes['mobilePosterId'] ) ? absint( $attributes['mobilePosterId'] ) : 0;
-		$desktop_poster_id   = isset( $attributes['desktopPosterId'] ) ? absint( $attributes['desktopPosterId'] ) : 0;
-		$mobile_poster_size  = isset( $attributes['mobilePosterSize'] ) ? sanitize_text_field( $attributes['mobilePosterSize'] ) : 'mosne-hero-mobile';
-		$desktop_poster_size = isset( $attributes['desktopPosterSize'] ) ? sanitize_text_field( $attributes['desktopPosterSize'] ) : 'large';
-		$video_high_priority = ! empty( $attributes['videoHighFetchPriority'] ) || true;
+		$mobile_poster_id          = isset( $attributes['mobilePosterId'] ) ? absint( $attributes['mobilePosterId'] ) : 0;
+		$desktop_poster_id         = isset( $attributes['desktopPosterId'] ) ? absint( $attributes['desktopPosterId'] ) : 0;
+		$mobile_poster_size        = isset( $attributes['mobilePosterSize'] ) ? sanitize_text_field( $attributes['mobilePosterSize'] ) : 'mosne-hero-mobile';
+		$desktop_poster_size       = isset( $attributes['desktopPosterSize'] ) ? sanitize_text_field( $attributes['desktopPosterSize'] ) : 'large';
+		$video_high_priority       = ! empty( $attributes['videoHighFetchPriority'] ) || true;
 
 		// Get poster URLs using specified sizes.
-		$mobile_poster_url   = $mobile_poster_id > 0 ? esc_url_raw( wp_get_attachment_image_url( $mobile_poster_id, $mobile_poster_size ) ) : '';
-		$desktop_poster_url  = $desktop_poster_id > 0 ? esc_url_raw( wp_get_attachment_image_url( $desktop_poster_id, $desktop_poster_size ) ) : '';
+		$mobile_poster_url  = $mobile_poster_id > 0 ? esc_url_raw( wp_get_attachment_image_url( $mobile_poster_id, $mobile_poster_size ) ) : '';
+		$desktop_poster_url = $desktop_poster_id > 0 ? esc_url_raw( wp_get_attachment_image_url( $desktop_poster_id, $desktop_poster_size ) ) : '';
 
 		// Handle video variation
 		if ( 'mosne-hero-video' === $attributes['variation'] ) {
@@ -278,8 +278,8 @@ class Render {
 	 */
 	private function render_video_block( $block_content, $attributes, $mobile_video_url, $desktop_video_url, $mobile_focal_point, $desktop_focal_point, $mobile_poster_url, $desktop_poster_url ) {
 		// Mobile-first approach: use mobile video as primary, desktop as fallback
-		$primary_video_url = ! empty( $mobile_video_url ) ? $mobile_video_url : $desktop_video_url;
-		$primary_poster_url = ! empty( $mobile_poster_url ) ? $mobile_poster_url : $desktop_poster_url;
+		$primary_video_url   = ! empty( $mobile_video_url ) ? $mobile_video_url : $desktop_video_url;
+		$primary_poster_url  = ! empty( $mobile_poster_url ) ? $mobile_poster_url : $desktop_poster_url;
 		$video_high_priority = ! empty( $attributes['videoHighFetchPriority'] ) || true;
 
 		// Early return if no video available
@@ -304,7 +304,7 @@ class Render {
 		if ( ! empty( $primary_video_url ) ) {
 			// Determine primary focal point (mobile-first)
 			$primary_focal_point = ! empty( $mobile_video_url ) ? $mobile_object_position : $desktop_object_position;
-			
+
 			$video_attrs = array(
 				'class'                => 'wp-block-cover__video-background intrinsic-ignore',
 				'autoplay'             => '',
@@ -362,7 +362,7 @@ class Render {
 
 		// Find and replace existing video or add new one
 		$tag_processor = new \WP_HTML_Tag_Processor( $block_content );
-		$video_found = false;
+		$video_found   = false;
 
 		while ( $tag_processor->next_tag( array( 'tag_name' => 'VIDEO' ) ) ) {
 			$class = $tag_processor->get_attribute( 'class' );
@@ -380,13 +380,7 @@ class Render {
 			$tag_processor->remove_attribute( 'src' );
 			$tag_processor->remove_attribute( 'poster' );
 			$tag_processor->remove_attribute( 'style' );
-			//$tag_processor->remove_attribute( 'data-object-fit' );
-			// $tag_processor->remove_attribute( 'data-object-position' );
-			//$tag_processor->remove_attribute( 'data-video-desktop' );
-			//$tag_processor->remove_attribute( 'data-poster-desktop' );
-			//$tag_processor->remove_attribute( 'data-poster-mobile' );
-			//$tag_processor->remove_attribute( 'data-mobile-object-position' );
-			
+
 			// Add new attributes
 			foreach ( $video_attrs as $attr_name => $attr_value ) {
 				if ( '' === $attr_value ) {
@@ -395,7 +389,7 @@ class Render {
 					$tag_processor->set_attribute( $attr_name, $attr_value );
 				}
 			}
-			
+
 			$block_content = $tag_processor->get_updated_html();
 		} elseif ( ! empty( $video_html ) ) {
 			// Add new video after opening div using string replacement
