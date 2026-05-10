@@ -43,6 +43,22 @@ registerBlockVariation( 'core/cover', {
 	attributes: {
 		variation: 'mosne-hero-video',
 		backgroundType: 'video',
+		videoHighFetchPriority: {
+			type: 'boolean',
+			default: true,
+		},
+		desktopPosterId: {
+			type: 'number',
+			default: 0,
+		},
+		desktopPosterSize: {
+			type: 'string',
+			default: 'large',
+		},
+		mobilePosterSize: {
+			type: 'string',
+			default: 'mosne-hero-mobile',
+		},
 	},
 	isDefault: false,
 	scope: [ 'inserter', 'transform' ],
@@ -100,3 +116,69 @@ addFilter(
 	withMobileImageControls,
 	20 // Higher priority to ensure it runs
 );
+
+/**
+ * Add custom attributes to core/cover block.
+ */
+const addCustomAttributes = ( settings, name ) => {
+	if ( name !== 'core/cover' ) {
+		return settings;
+	}
+
+	return {
+		...settings,
+		attributes: {
+			...settings.attributes,
+			videoHighFetchPriority: {
+				type: 'boolean',
+				default: true,
+			},
+			desktopPosterId: {
+				type: 'number',
+				default: 0,
+			},
+			desktopPosterSize: {
+				type: 'string',
+				default: 'large',
+			},
+			mobilePosterSize: {
+				type: 'string',
+				default: 'mosne-hero-mobile',
+			},
+		},
+	};
+};
+
+addFilter(
+	'blocks.registerBlockType',
+	'mosne-hero/add-cover-attributes',
+	addCustomAttributes
+);
+
+/**
+ * Add CSS to hide default featured image field for video variation.
+ */
+const addEditorStyles = () => {
+	const styleId = 'mosne-hero-editor-styles';
+	if ( document.getElementById( styleId ) ) {
+		return;
+	}
+
+	const style = document.createElement( 'style' );
+	style.id = styleId;
+	style.textContent = `
+		/* Hide default featured image/media upload for video variation */
+		.block-editor-block-inspector__content .block-editor-media-placeholder,
+		[data-type="core/cover"] .block-editor-media-placeholder {
+			display: none;
+		}
+	`;
+	document.head.appendChild( style );
+};
+
+// Add styles when DOM is ready
+if ( document.readyState === 'loading' ) {
+	document.addEventListener( 'DOMContentLoaded', addEditorStyles );
+} else {
+	addEditorStyles();
+}

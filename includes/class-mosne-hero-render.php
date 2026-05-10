@@ -78,9 +78,14 @@ class Render {
 			'y' => 0.5,
 		);
 		$mobile_poster_id    = isset( $attributes['mobilePosterId'] ) ? absint( $attributes['mobilePosterId'] ) : 0;
-		$desktop_poster_id   = isset( $attributes['featuredImage'] ) ? absint( $attributes['featuredImage'] ) : 0;
-		$mobile_poster_url   = isset( $attributes['mobilePosterUrl'] ) ? esc_url_raw( $attributes['mobilePosterUrl'] ) : '';
-		$desktop_poster_url  = isset( $attributes['featuredImage'] ) ? esc_url_raw( wp_get_attachment_image_url( $attributes['featuredImage'], 'full' ) ) : '';
+		$desktop_poster_id   = isset( $attributes['desktopPosterId'] ) ? absint( $attributes['desktopPosterId'] ) : 0;
+		$mobile_poster_size  = isset( $attributes['mobilePosterSize'] ) ? sanitize_text_field( $attributes['mobilePosterSize'] ) : 'mosne-hero-mobile';
+		$desktop_poster_size = isset( $attributes['desktopPosterSize'] ) ? sanitize_text_field( $attributes['desktopPosterSize'] ) : 'large';
+		$video_high_priority = ! empty( $attributes['videoHighFetchPriority'] ) || true;
+
+		// Get poster URLs using specified sizes.
+		$mobile_poster_url   = $mobile_poster_id > 0 ? esc_url_raw( wp_get_attachment_image_url( $mobile_poster_id, $mobile_poster_size ) ) : '';
+		$desktop_poster_url  = $desktop_poster_id > 0 ? esc_url_raw( wp_get_attachment_image_url( $desktop_poster_id, $desktop_poster_size ) ) : '';
 
 		// Handle video variation
 		if ( 'mosne-hero-video' === $attributes['variation'] ) {
@@ -275,6 +280,7 @@ class Render {
 		// Mobile-first approach: use mobile video as primary, desktop as fallback
 		$primary_video_url = ! empty( $mobile_video_url ) ? $mobile_video_url : $desktop_video_url;
 		$primary_poster_url = ! empty( $mobile_poster_url ) ? $mobile_poster_url : $desktop_poster_url;
+		$video_high_priority = ! empty( $attributes['videoHighFetchPriority'] ) || true;
 
 		// Early return if no video available
 		if ( empty( $primary_video_url ) ) {
@@ -307,16 +313,16 @@ class Render {
 				'playsinline'          => '',
 				'src'                  => '',
 				'preload'              => 'none',
-				'loading'              => 'eager',
-				'fetchpriority'        => 'high',
 				'style'                => 'object-position:' . esc_attr( $primary_focal_point ) . ';',
 				'data-object-fit'      => 'cover',
 				'data-object-position' => esc_attr( $primary_focal_point ),
 			);
 
-			// Add primary poster
-			if ( ! empty( $primary_poster_url ) ) {
-				$video_attrs['poster'] = esc_url( $primary_poster_url );
+			// Add fetchpriority or loading based on settings.
+			if ( $video_high_priority ) {
+				$video_attrs['fetchpriority'] = 'high';
+			} else {
+				$video_attrs['loading'] = 'lazy';
 			}
 
 			// Add mobile video URL as data attribute for frontend switching
@@ -329,8 +335,11 @@ class Render {
 				$video_attrs['data-video-desktop'] = esc_url( $desktop_video_url );
 			}
 
-			// Add desktop poster if different from primary
-			if ( ! empty( $desktop_poster_url ) && $desktop_poster_url !== $primary_poster_url ) {
+			// Add poster data attributes for frontend switching
+			if ( ! empty( $mobile_poster_url ) ) {
+				$video_attrs['data-poster-mobile'] = esc_url( $mobile_poster_url );
+			}
+			if ( ! empty( $desktop_poster_url ) ) {
 				$video_attrs['data-poster-desktop'] = esc_url( $desktop_poster_url );
 			}
 

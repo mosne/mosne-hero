@@ -22,15 +22,6 @@
 
 		// Process video elements
 		videoElements.forEach( ( video ) => {
-			// Get mobile and desktop object positions
-			const mobileObjectPosition =
-				video.getAttribute( 'data-mobile-object-position' ) ||
-				video.getAttribute( 'data-object-position' ) ||
-				video.style.objectPosition ||
-				'50% 50%';
-			const desktopObjectPosition =
-				video.getAttribute( 'data-object-position' ) || '50% 50%';
-
 			// Get mobile and desktop poster URLs
 			const mobilePosterUrl = video.getAttribute( 'data-poster-mobile' ) || '';
 			const desktopPosterUrl = video.getAttribute( 'data-poster-desktop' ) || '';
@@ -48,13 +39,7 @@
 				`(max-width: ${ breakpoint }px)`
 			);
 
-			// Set initial position and poster based on current viewport
-			updateVideoObjectPosition(
-				video,
-				mediaQuery,
-				mobileObjectPosition,
-				desktopObjectPosition
-			);
+			// Set initial poster based on current viewport
 			updateVideoPoster(
 				video,
 				mediaQuery,
@@ -70,12 +55,6 @@
 
 			// Listen for viewport changes
 			mediaQuery.addEventListener( 'change', ( e ) => {
-				updateVideoObjectPosition(
-					video,
-					e,
-					mobileObjectPosition,
-					desktopObjectPosition
-				);
 				updateVideoPoster(
 					video,
 					e,
@@ -90,29 +69,6 @@
 				);
 			} );
 		} );
-	}
-
-	/**
-	 * Update video object position based on media query.
-	 *
-	 * @param {HTMLElement}                        video           Video element.
-	 * @param {MediaQueryList|MediaQueryListEvent} mediaQuery      Media query object.
-	 * @param {string}                             mobilePosition  Mobile object position.
-	 * @param {string}                             desktopPosition Desktop object position.
-	 */
-	function updateVideoObjectPosition(
-		video,
-		mediaQuery,
-		mobilePosition,
-		desktopPosition
-	) {
-		if ( mediaQuery.matches ) {
-			// Mobile view: use mobile position
-			video.style.objectPosition = mobilePosition;
-		} else {
-			// Desktop view: use desktop position
-			video.style.objectPosition = desktopPosition;
-		}
 	}
 
 	/**
