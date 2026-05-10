@@ -23,7 +23,7 @@ export function buildWarningMessage( attributes ) {
 	if ( hasParallax ) {
 		unavailableReasons.push( __( 'Parallax', 'mosne-hero' ) );
 	}
-	
+
 	// Only add background type warnings if not the video variation
 	if ( variation !== 'mosne-hero-video' && backgroundType !== 'image' ) {
 		const backgroundTypeLabel =

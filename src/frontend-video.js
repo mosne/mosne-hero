@@ -1,7 +1,5 @@
 /**
  * Frontend script to handle video switching based on media queries.
- *
- * @package MosneHero
  */
 
 ( function () {
@@ -23,12 +21,16 @@
 		// Process video elements
 		videoElements.forEach( ( video ) => {
 			// Get mobile and desktop poster URLs
-			const mobilePosterUrl = video.getAttribute( 'data-poster-mobile' ) || '';
-			const desktopPosterUrl = video.getAttribute( 'data-poster-desktop' ) || '';
+			const mobilePosterUrl =
+				video.getAttribute( 'data-poster-mobile' ) || '';
+			const desktopPosterUrl =
+				video.getAttribute( 'data-poster-desktop' ) || '';
 
 			// Get mobile and desktop video URLs (mobile-first approach)
-			const desktopVideoUrl = video.getAttribute( 'data-video-desktop' ) || '';
-			const mobileVideoUrl = video.getAttribute( 'data-video-mobile' ) || video.src || '';
+			const desktopVideoUrl =
+				video.getAttribute( 'data-video-desktop' ) || '';
+			const mobileVideoUrl =
+				video.getAttribute( 'data-video-mobile' ) || video.src || '';
 
 			// Get breakpoint from localized settings, fallback to 728px
 			const breakpoint =
@@ -61,12 +63,7 @@
 					mobilePosterUrl,
 					desktopPosterUrl
 				);
-				updateVideoSrc(
-					video,
-					e,
-					mobileVideoUrl,
-					desktopVideoUrl
-				);
+				updateVideoSrc( video, e, mobileVideoUrl, desktopVideoUrl );
 			} );
 		} );
 	}
@@ -74,12 +71,17 @@
 	/**
 	 * Update video poster based on media query.
 	 *
-	 * @param {HTMLElement}                        video          Video element.
-	 * @param {MediaQueryList|MediaQueryListEvent} mediaQuery     Media query object.
-	 * @param {string}                             mobilePoster   Mobile poster URL.
-	 * @param {string}                             desktopPoster  Desktop poster URL.
+	 * @param {HTMLElement}                        video         Video element.
+	 * @param {MediaQueryList|MediaQueryListEvent} mediaQuery    Media query object.
+	 * @param {string}                             mobilePoster  Mobile poster URL.
+	 * @param {string}                             desktopPoster Desktop poster URL.
 	 */
-	function updateVideoPoster( video, mediaQuery, mobilePoster, desktopPoster ) {
+	function updateVideoPoster(
+		video,
+		mediaQuery,
+		mobilePoster,
+		desktopPoster
+	) {
 		if ( mediaQuery.matches && mobilePoster ) {
 			// Mobile view: use mobile poster
 			video.setAttribute( 'poster', mobilePoster );
@@ -92,10 +94,10 @@
 	/**
 	 * Update video source based on media query (mobile-first approach).
 	 *
-	 * @param {HTMLElement}                        video         Video element.
-	 * @param {MediaQueryList|MediaQueryListEvent} mediaQuery    Media query object.
-	 * @param {string}                             mobileVideo   Mobile video URL (primary).
-	 * @param {string}                             desktopVideo  Desktop video URL (fallback).
+	 * @param {HTMLElement}                        video        Video element.
+	 * @param {MediaQueryList|MediaQueryListEvent} mediaQuery   Media query object.
+	 * @param {string}                             mobileVideo  Mobile video URL (primary).
+	 * @param {string}                             desktopVideo Desktop video URL (fallback).
 	 */
 	function updateVideoSrc( video, mediaQuery, mobileVideo, desktopVideo ) {
 		if ( ! mediaQuery.matches && desktopVideo ) {
@@ -115,10 +117,7 @@
 
 	// Initialize on DOM ready
 	if ( document.readyState === 'loading' ) {
-		document.addEventListener(
-			'DOMContentLoaded',
-			initVideoSwitching
-		);
+		document.addEventListener( 'DOMContentLoaded', initVideoSwitching );
 	} else {
 		initVideoSwitching();
 	}

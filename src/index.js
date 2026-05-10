@@ -119,6 +119,10 @@ addFilter(
 
 /**
  * Add custom attributes to core/cover block.
+ *
+ * @param {Object} settings - Block settings.
+ * @param {string} name     - Block name.
+ * @return {Object} Modified block settings.
  */
 const addCustomAttributes = ( settings, name ) => {
 	if ( name !== 'core/cover' ) {

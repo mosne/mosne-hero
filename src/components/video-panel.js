@@ -13,8 +13,6 @@ import {
 	PanelBody,
 	TextControl,
 	Button,
-	FocalPointPicker,
-	Notice,
 	SelectControl,
 	ToggleControl,
 } from '@wordpress/components';
@@ -35,7 +33,6 @@ import { getImageUrlForSize } from '../utils/image-helpers';
 export function VideoPanel( { attributes, setAttributes } ) {
 	const {
 		mobileVideoUrl = '',
-		desktopVideoUrl = '',
 		mobilePosterId = 0,
 		desktopPosterId = 0,
 		mobilePosterUrl = '',
@@ -69,15 +66,6 @@ export function VideoPanel( { attributes, setAttributes } ) {
 		[ mobilePosterId ]
 	);
 
-	const onSelectDesktopVideo = ( media ) => {
-		if ( media && media.url ) {
-			setAttributes( {
-				desktopVideoUrl: media.url,
-				variation: attributes.variation || 'mosne-hero-video',
-			} );
-		}
-	};
-
 	const onSelectMobileVideo = ( media ) => {
 		if ( media && media.url ) {
 			setAttributes( {
@@ -89,18 +77,15 @@ export function VideoPanel( { attributes, setAttributes } ) {
 
 	const onSelectMobilePoster = ( image ) => {
 		if ( image && image.url ) {
-			const url = getImageUrlForSize( image, mobilePosterSize || 'mosne-hero-mobile' );
+			const url = getImageUrlForSize(
+				image,
+				mobilePosterSize || 'mosne-hero-mobile'
+			);
 			setAttributes( {
 				mobilePosterId: image.id,
 				mobilePosterUrl: url || image.url,
 			} );
 		}
-	};
-
-	const onRemoveDesktopVideo = () => {
-		setAttributes( {
-			desktopVideoUrl: '',
-		} );
 	};
 
 	const onRemoveMobileVideo = () => {
@@ -118,7 +103,10 @@ export function VideoPanel( { attributes, setAttributes } ) {
 
 	const onSelectDesktopPoster = ( image ) => {
 		if ( image && image.url ) {
-			const url = getImageUrlForSize( image, desktopPosterSize || 'large' );
+			const url = getImageUrlForSize(
+				image,
+				desktopPosterSize || 'large'
+			);
 			setAttributes( {
 				desktopPosterId: image.id,
 				desktopPosterUrl: url || image.url,
@@ -139,7 +127,7 @@ export function VideoPanel( { attributes, setAttributes } ) {
 				title={ __( 'Video Settings', 'mosne-hero' ) }
 				initialOpen={ true }
 			>
-				{/* Video Loading Priority */}
+				{ /* Video Loading Priority */ }
 				<ToggleControl
 					label={ __( 'High Fetch Priority', 'mosne-hero' ) }
 					checked={ videoHighFetchPriority }
@@ -152,7 +140,7 @@ export function VideoPanel( { attributes, setAttributes } ) {
 					) }
 				/>
 
-				{/* Desktop Poster Size */}
+				{ /* Desktop Poster Size */ }
 				<SelectControl
 					label={ __( 'Desktop Poster Size', 'mosne-hero' ) }
 					value={ desktopPosterSize || 'large' }
@@ -161,7 +149,10 @@ export function VideoPanel( { attributes, setAttributes } ) {
 						setAttributes( { desktopPosterSize: value } );
 						// Update URL if desktop poster exists
 						if ( desktopPosterImage ) {
-							const url = getImageUrlForSize( desktopPosterImage, value );
+							const url = getImageUrlForSize(
+								desktopPosterImage,
+								value
+							);
 							if ( url ) {
 								setAttributes( { desktopPosterUrl: url } );
 							}
@@ -173,7 +164,7 @@ export function VideoPanel( { attributes, setAttributes } ) {
 					) }
 				/>
 
-				{/* Desktop Poster */}
+				{ /* Desktop Poster */ }
 				<div style={ { marginBottom: '20px' } }>
 					<h4>{ __( 'Desktop Poster', 'mosne-hero' ) }</h4>
 					<MediaUploadCheck>
@@ -195,7 +186,10 @@ export function VideoPanel( { attributes, setAttributes } ) {
 											>
 												<img
 													src={ desktopPosterUrl }
-													alt={ __( 'Desktop poster preview', 'mosne-hero' ) }
+													alt={ __(
+														'Desktop poster preview',
+														'mosne-hero'
+													) }
 													style={ {
 														width: '100%',
 														height: 'auto',
@@ -211,17 +205,25 @@ export function VideoPanel( { attributes, setAttributes } ) {
 													width: '100%',
 												} }
 											>
-												{ __( 'Replace desktop poster', 'mosne-hero' ) }
+												{ __(
+													'Replace desktop poster',
+													'mosne-hero'
+												) }
 											</Button>
 											<Button
-												onClick={ onRemoveDesktopPoster }
+												onClick={
+													onRemoveDesktopPoster
+												}
 												variant="secondary"
 												isDestructive
 												style={ {
 													width: '100%',
 												} }
 											>
-												{ __( 'Remove desktop poster', 'mosne-hero' ) }
+												{ __(
+													'Remove desktop poster',
+													'mosne-hero'
+												) }
 											</Button>
 										</>
 									) : (
@@ -232,7 +234,10 @@ export function VideoPanel( { attributes, setAttributes } ) {
 												width: '100%',
 											} }
 										>
-											{ __( 'Select desktop poster', 'mosne-hero' ) }
+											{ __(
+												'Select desktop poster',
+												'mosne-hero'
+											) }
 										</Button>
 									) }
 								</div>
@@ -241,9 +246,15 @@ export function VideoPanel( { attributes, setAttributes } ) {
 					</MediaUploadCheck>
 				</div>
 
-				<hr style={ { margin: '20px 0', border: 'none', borderTop: '1px solid #e0e0e0' } } />
+				<hr
+					style={ {
+						margin: '20px 0',
+						border: 'none',
+						borderTop: '1px solid #e0e0e0',
+					} }
+				/>
 
-				{/* Mobile Video */}
+				{ /* Mobile Video */ }
 				<div style={ { marginBottom: '20px' } }>
 					<h4>{ __( 'Mobile Video', 'mosne-hero' ) }</h4>
 					<MediaUploadCheck>
@@ -256,7 +267,10 @@ export function VideoPanel( { attributes, setAttributes } ) {
 									{ mobileVideoUrl ? (
 										<>
 											<TextControl
-												label={ __( 'Mobile Video URL', 'mosne-hero' ) }
+												label={ __(
+													'Mobile Video URL',
+													'mosne-hero'
+												) }
 												value={ mobileVideoUrl }
 												onChange={ ( value ) =>
 													setAttributes( {
@@ -303,7 +317,7 @@ export function VideoPanel( { attributes, setAttributes } ) {
 					</MediaUploadCheck>
 				</div>
 
-				{/* Mobile Poster Size */}
+				{ /* Mobile Poster Size */ }
 				<SelectControl
 					label={ __( 'Mobile Poster Size', 'mosne-hero' ) }
 					value={ mobilePosterSize || 'mosne-hero-mobile' }
@@ -312,7 +326,10 @@ export function VideoPanel( { attributes, setAttributes } ) {
 						setAttributes( { mobilePosterSize: value } );
 						// Update URL if mobile poster exists
 						if ( mobilePosterImage ) {
-							const url = getImageUrlForSize( mobilePosterImage, value );
+							const url = getImageUrlForSize(
+								mobilePosterImage,
+								value
+							);
 							if ( url ) {
 								setAttributes( { mobilePosterUrl: url } );
 							}
@@ -324,7 +341,7 @@ export function VideoPanel( { attributes, setAttributes } ) {
 					) }
 				/>
 
-				{/* Mobile Poster */}
+				{ /* Mobile Poster */ }
 				<div style={ { marginBottom: '20px' } }>
 					<h4>{ __( 'Mobile Poster', 'mosne-hero' ) }</h4>
 					<MediaUploadCheck>
@@ -346,7 +363,10 @@ export function VideoPanel( { attributes, setAttributes } ) {
 											>
 												<img
 													src={ mobilePosterUrl }
-													alt={ __( 'Mobile poster preview', 'mosne-hero' ) }
+													alt={ __(
+														'Mobile poster preview',
+														'mosne-hero'
+													) }
 													style={ {
 														width: '100%',
 														height: 'auto',
@@ -362,7 +382,10 @@ export function VideoPanel( { attributes, setAttributes } ) {
 													width: '100%',
 												} }
 											>
-												{ __( 'Replace mobile poster', 'mosne-hero' ) }
+												{ __(
+													'Replace mobile poster',
+													'mosne-hero'
+												) }
 											</Button>
 											<Button
 												onClick={ onRemoveMobilePoster }
@@ -372,7 +395,10 @@ export function VideoPanel( { attributes, setAttributes } ) {
 													width: '100%',
 												} }
 											>
-												{ __( 'Remove mobile poster', 'mosne-hero' ) }
+												{ __(
+													'Remove mobile poster',
+													'mosne-hero'
+												) }
 											</Button>
 										</>
 									) : (
