@@ -80,7 +80,6 @@ class Assets {
 				'in_footer' => true,
 				'strategy'  => 'defer',
 			]
-
 		);
 
 		// Register video script with its own asset file
