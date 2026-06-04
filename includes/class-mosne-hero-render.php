@@ -59,6 +59,7 @@ class Render {
 			'x' => 0.5,
 			'y' => 0.5,
 		);
+		$desktop_image_size  = isset( $attributes['desktopImageSize'] ) ? sanitize_text_field( $attributes['desktopImageSize'] ) : 'large';
 		$mobile_image_size   = isset( $attributes['mobileImageSize'] ) ? sanitize_text_field( $attributes['mobileImageSize'] ) : 'large';
 		$mobile_image_alt    = isset( $attributes['mobileImageAlt'] ) ? sanitize_text_field( $attributes['mobileImageAlt'] ) : '';
 		$high_fetch_priority = ! empty( $attributes['highFetchPriority'] );
@@ -138,13 +139,15 @@ class Render {
 
 			if ( $desktop_image_html ) {
 				// Get desktop image data.
-				$desktop_srcset = wp_get_attachment_image_srcset( $desktop_image_id );
-				if ( ! $desktop_srcset && preg_match( '/srcset="([^"]*)"/i', $desktop_image_html, $srcset_match ) ) {
-					$desktop_srcset = $srcset_match[1];
+				$desktop_srcset = wp_get_attachment_image_srcset( $desktop_image_id, $desktop_image_size );
+				// Get mobile src URL for fallback img tag.
+				$mobile_src_url = '';
+				if ( $mobile_image_src && isset( $mobile_image_src[0] ) ) {
+					$mobile_src_url = $mobile_image_src[0];
+				} elseif ( $mobile_srcset && preg_match( '/^([^,\s]+)/', $mobile_srcset, $srcset_url_match ) ) {
+					$mobile_src_url = trim( $srcset_url_match[1] );
 				}
 
-				$size_slug           = $attributes['sizeSlug'] ?? 'large';
-				$desktop_image_data  = wp_get_attachment_image_src( $desktop_image_id, $size_slug );
 				$desktop_image_width = 0;
 				if ( preg_match( '/width="(\d+)"/i', $desktop_image_html, $width_match ) ) {
 					$desktop_image_width = (int) $width_match[1];
@@ -152,13 +155,6 @@ class Render {
 					$desktop_image_width = (int) $desktop_image_data[1];
 				} else {
 					$desktop_image_width = (int) get_option( 'large_size_w', 1024 );
-				}
-				// Get mobile src URL for fallback img tag.
-				$mobile_src_url = '';
-				if ( $mobile_image_src && isset( $mobile_image_src[0] ) ) {
-					$mobile_src_url = $mobile_image_src[0];
-				} elseif ( $mobile_srcset && preg_match( '/^([^,\s]+)/', $mobile_srcset, $srcset_url_match ) ) {
-					$mobile_src_url = trim( $srcset_url_match[1] );
 				}
 
 				// Extract desktop alt from existing img tag if present (as additional fallback).
