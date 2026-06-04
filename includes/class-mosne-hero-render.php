@@ -143,9 +143,8 @@ class Render {
 					$desktop_srcset = $srcset_match[1];
 				}
 
-				$sizeSlug = $attributes['sizeSlug'] ?? 'large';
-				$desktop_image_data  = wp_get_attachment_image_src( $desktop_image_id, $sizeSlug );
-				
+				$size_slug           = $attributes['sizeSlug'] ?? 'large';
+				$desktop_image_data  = wp_get_attachment_image_src( $desktop_image_id, $size_slug );
 				$desktop_image_width = 0;
 				if ( preg_match( '/width="(\d+)"/i', $desktop_image_html, $width_match ) ) {
 					$desktop_image_width = (int) $width_match[1];
@@ -154,7 +153,6 @@ class Render {
 				} else {
 					$desktop_image_width = (int) get_option( 'large_size_w', 1024 );
 				}
-				
 				// Get mobile src URL for fallback img tag.
 				$mobile_src_url = '';
 				if ( $mobile_image_src && isset( $mobile_image_src[0] ) ) {
