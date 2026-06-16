@@ -149,10 +149,12 @@ class Render {
 				}
 
 				$desktop_image_width = 0;
+				$desktop_image_data  = wp_get_attachment_metadata( $desktop_image_id );
+
 				if ( preg_match( '/width="(\d+)"/i', $desktop_image_html, $width_match ) ) {
 					$desktop_image_width = (int) $width_match[1];
-				} elseif ( $desktop_image_data && isset( $desktop_image_data[1] ) ) {
-					$desktop_image_width = (int) $desktop_image_data[1];
+				} elseif ( $desktop_image_data && isset( $desktop_image_data['sizes'][ $desktop_image_size ]['width'] ) ) {
+					$desktop_image_width = (int) $desktop_image_data['sizes'][ $desktop_image_size ]['width'];
 				} else {
 					$desktop_image_width = (int) get_option( 'large_size_w', 1024 );
 				}
